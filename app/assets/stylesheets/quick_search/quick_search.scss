@@ -177,13 +177,6 @@
             }
         }
 
-        .summon {
-            .description {
-                display: none;
-            }
-        }
-
-
         .faq {
             .total {
                 display: none;
@@ -213,9 +206,16 @@
                 font-weight: bold;
             }
         }
+
+        .description {
+            p.description-full {
+                display: none;
+            }
+        }
     }
   }
 }
+
 
 
 // hide google analytics debug

@@ -11,35 +11,52 @@
     </h3>
 <% end %>
 <p class='link'><%= result["link"] %></p>
-<% if result.description %>
-<p class='description'><%= result["description"].html_safe %></p>
-<% end %>
+
 <% if result["author"]%>
     <% author = result["author"].html_safe %>
 <% end %>
-<p class='author'><%=  truncate(author, length: 80, separator: '; ') %></p>
-<% if result.citation %>
-<p class="citation">
-<%= render partial: '/quick_search/search/citation', locals: {:result => result} %>
-</p>
-<% end %>
-<p class='format'><%= result["format"] %>
 
-<% if result['fulltext'] %>&nbsp;|&nbsp;
-<%= link_to result["link"], {:class => ''} do %>
-    Full&nbsp;Text&nbsp;Online
+<p class='author'><%=  truncate(author, length: 80, separator: '; ') %></p>
+
+<% if result.citation %>
+    <p class="citation">
+        <%= render partial: '/quick_search/search/citation', locals: {:result => result} %>
+    </p>
 <% end %>
-<% end %>
-</p>
-<p>
-<% if result['availability'] %>
-    <% if result["availability"] == "Available" %>
-        <span class='availability available' title='Available'><i class='fa fa-check'></i></span>
-    <% else %>
-        <span class='availability unavailable' title='Not Available'><i class='fa fa-times'></i></span>
+
+<p class='format'><%= result["format"] %>
+  <% if result['fulltext'] %>&nbsp;|&nbsp;
+    <%= link_to result["link"], {:class => ''} do %>
+      Full&nbsp;Text&nbsp;Online
     <% end %>
+  <% end %>
+</p>
+
+<% if result["description"] %>
+    <div class='description'>
+        <p class='description-truncated'>
+            Abstract: <%= truncate(result["description"].html_safe, length: 165) %>
+
+            <% if result["description"].length > 165 %>
+                <%= link_to 'Read more', '#', class: "read-more" %>
+            <% end %>
+        </p>
+        <p class='description-full'>
+            Abstract: <%= result["description"].html_safe %>
+        </p>
+    </div>
 <% end %>
-<% if result['location'] %>
-    <span class='location'><%= result['location'] %></span>
-<% end %>
+
+<p>
+    <% if result['availability'] %>
+        <% if result["availability"] == "Available" %>
+            <span class='availability available' title='Available'><i class='fa fa-check'></i></span>
+        <% else %>
+            <span class='availability unavailable' title='Not Available'><i class='fa fa-times'></i></span>
+        <% end %>
+    <% end %>
+
+    <% if result['location'] %>
+        <span class='location'><%= result['location'] %></span>
+    <% end %>
 </p>

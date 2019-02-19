@@ -31,3 +31,12 @@ $(document).on('click', '.result-types a', function () {
         $('#' + hash + ' .result-types-highlight').remove();
     }, 3550);
 });
+
+$(document).ready(function () {
+    $('.read-more').click(function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        $(e.target).parent().hide();
+        $(e.target).parent().siblings('.description-full').show();
+    });
+});
