@@ -24,6 +24,21 @@
     </p>
 <% end %>
 
+<% if result["description"] %>
+    <div class='description'>
+        <p class='description-truncated'>
+            <%= truncate(result["description"].html_safe, length: 200) %>
+
+            <% if result["description"].length > 200 %>
+                <%= link_to 'Read more', '#', class: "read-more" %>
+            <% end %>
+        </p>
+        <p class='description-full'>
+            <%= result["description"].html_safe %>
+        </p>
+    </div>
+<% end %>
+
 <p class='format'><%= result["format"] %>
   <% if result['fulltext'] %>&nbsp;|&nbsp;
     <%= link_to result["link"], {:class => ''} do %>
@@ -31,21 +46,6 @@
     <% end %>
   <% end %>
 </p>
-
-<% if result["description"] %>
-    <div class='description'>
-        <p class='description-truncated'>
-            Abstract: <%= truncate(result["description"].html_safe, length: 165) %>
-
-            <% if result["description"].length > 165 %>
-                <%= link_to 'Read more', '#', class: "read-more" %>
-            <% end %>
-        </p>
-        <p class='description-full'>
-            Abstract: <%= result["description"].html_safe %>
-        </p>
-    </div>
-<% end %>
 
 <p>
     <% if result['availability'] %>
