@@ -47,7 +47,12 @@ module QuickSearch::ApplicationHelper
   end
 
   def render_module(searcher, service_name, partial_name = '/quick_search/search/module', per_page = 3)
-    render partial: partial_name , locals: { module_display_name: t("#{service_name}_search.display_name"), searcher: searcher, search: '', service_name: service_name, per_page: per_page }
+    # if there's a custom view available for this searcher, use it
+    if lookup_context.exists?("/quick_search/#{service_name}/module", [], true)
+      render partial: "/quick_search/#{service_name}/module", locals: { module_display_name: t("#{service_name}_search.display_name"), searcher: searcher, search: '', service_name: service_name, per_page: per_page }
+    else
+      render partial: partial_name , locals: { module_display_name: t("#{service_name}_search.display_name"), searcher: searcher, search: '', service_name: service_name, per_page: per_page }
+    end
   end
 
   def get_best_bets_data(best_bets_searcher)
