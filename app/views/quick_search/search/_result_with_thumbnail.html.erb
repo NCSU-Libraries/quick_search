@@ -4,18 +4,18 @@
 <% unless result["mobile_link"] %>
     <div class="small-3 columns">
         <%= link_to result.link do %>
-            <%= image_tag result["thumbnail"], :class => 'thumbnail' %>
+            <%= image_tag result["thumbnail"], :alt => result["title"] :class => 'thumbnail' %>
         <% end %>
     </div>
 <% else %>
     <div class="small-3 columns show-for-medium-up">
         <%= link_to result.link do %>
-            <%= image_tag result["thumbnail"], :class => 'thumbnail' %>
+            <%= image_tag result["thumbnail"], :alt => result["title"] :class => 'thumbnail' %>
         <% end %>
     </div>
     <div class="small-3 columns show-for-small-only">
         <%= link_to result.mobile_link do %>
-            <%= image_tag result["thumbnail"], :class => 'thumbnail' %>
+            <%= image_tag result["thumbnail"], :alt => result["title"] :class => 'thumbnail' %>
         <% end %>
     </div>
 <% end %>
