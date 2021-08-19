@@ -25,6 +25,16 @@ module QuickSearch
       raise #FIXME: pick some good error
     end
 
+    def goodBets
+      goodbets = []
+      results.each do |result|
+        if result.title.downcase.include?(@q.downcase)
+          goodbets.push(result.to_h)
+          break
+        end
+      end
+      return goodbets
+    end
     # Returns a String representing the link to use when no results are
     # found for a search.
     #

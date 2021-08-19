@@ -12,11 +12,22 @@ module QuickSearch
 
     before_action :doi_trap, :log_query
     after_action :realtime_message, only: [:index]
-
+    helper_method :all_good_bets
     def index
       loaded_searches
       @common_searches = common_searches
       http_search
+    end
+
+    def all_good_bets
+      good_bets = []
+      items = [@best_bets, @faq, @website,@smart_subjects, @ematrix_database,@ematrix_journal, @lynda]
+      items.each do |item|
+        if !item.is_a?(QuickSearch::SearcherError)
+          good_bets.concat(item.goodBets)
+        end
+      end
+      return good_bets
     end
 
     # TODO: throw error if required files not in place
