@@ -29,7 +29,10 @@ module QuickSearch
       goodbets = []
       results.each do |result|
         if result.title.downcase.include?(@q.downcase)
-          goodbets.push(result.to_h)
+          searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+          good_bet_result = result.to_h
+          good_bet_result[:searcher] = searcher
+          goodbets.push(good_bet_result)
         end
       end
       return goodbets
