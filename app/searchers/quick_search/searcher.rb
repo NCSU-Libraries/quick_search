@@ -30,7 +30,6 @@ module QuickSearch
       results.each do |result|
         if result.title.downcase.include?(@q.downcase)
           goodbets.push(result.to_h)
-          break
         end
       end
       return goodbets
