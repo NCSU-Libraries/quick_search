@@ -21,7 +21,7 @@ module QuickSearch
 
     def all_good_bets
       good_bets = []
-      best_bet_links = @best_bets.results.map{|elem|elem[:link]}
+      best_bet_links = !@best_bets.is_a?(QuickSearch::SearcherError) ? @best_bets.results.map{|elem|elem[:link] ? elem[:link] : elem[:url] ? elem[:url] : ''} : []
       items = [@best_bets, @faq, @website,@smart_subjects, @ematrix_database,@ematrix_journal, @lynda]
       items.each do |item|
         if !item.is_a?(QuickSearch::SearcherError)
