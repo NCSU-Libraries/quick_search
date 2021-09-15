@@ -25,11 +25,15 @@ module QuickSearch
       raise #FIXME: pick some good error
     end
 
+    def cleantitlearray(title)
+      title.downcase.gsub(/[^0-9a-zA-Z ]+/, "").split(" ")
+    end
+
     def goodBets
       goodbets = []
       results.each do |result|
-        cleantitle = result.title.downcase.gsub(/[^0-9a-zA-Z ]+/, "")
-        if cleantitle.include?(@q.downcase)
+        cleantitle = cleantitlearray(result.title)
+        if cleantitlearray(@q).all? {|x|cleantitle.include? x}
           searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher
