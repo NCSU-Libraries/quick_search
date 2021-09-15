@@ -28,7 +28,8 @@ module QuickSearch
     def goodBets
       goodbets = []
       results.each do |result|
-        if result.title.downcase.include?(@q.downcase)
+        cleantitle = result.title.downcase.gsub("[^0-9a-zA-Z ]+", "")
+        if cleantitle.include?(@q.downcase)
           searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher

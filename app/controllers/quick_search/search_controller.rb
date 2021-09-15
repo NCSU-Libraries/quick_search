@@ -19,6 +19,27 @@ module QuickSearch
       http_search
     end
 
+    def corrections
+      query_clean = params_q_scrubbed.downcase
+      if DICTIONARY.include?(query_clean)
+        corrections = []
+      else
+        corrections = SPELL_CHECKER.correct(query_clean)
+        if corrections.length == 0
+          correction = []
+          query_clean.split(' ').each do | q |
+            if !DICTIONARY.include?(q)
+              correction.push(SPELL_CHECKER.correct(q).first)
+            else
+              correction.push(q)
+            end
+          end
+          corrections = [correction.join(' ')] if correction.join(' ') != query_clean else []
+        end
+      end
+      return corrections
+    end
+
     def all_good_bets
       good_bets = []
       best_bet_links = !@best_bets.is_a?(QuickSearch::SearcherError) ? @best_bets.results.map{|elem|elem[:link] ? elem[:link] : elem[:url] ? elem[:url] : ''} : []
@@ -139,7 +160,7 @@ module QuickSearch
       @search_form_placeholder = I18n.t "#{endpoint}_search.search_form_placeholder"
       @page_title = I18n.t "#{endpoint}_search.display_name"
       @module_callout = I18n.t "#{endpoint}_search.module_callout"
-
+      @corrections = corrections()
       if search_in_params?
         @query = params_q_scrubbed
         @search_in_params = true
