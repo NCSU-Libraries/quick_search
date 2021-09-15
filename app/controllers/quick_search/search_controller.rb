@@ -20,6 +20,9 @@ module QuickSearch
     end
 
     def corrections
+      if !params_q_scrubbed
+        return []
+      end
       query_clean = params_q_scrubbed.downcase
       if DICTIONARY.include?(query_clean)
         corrections = []
