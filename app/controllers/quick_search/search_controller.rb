@@ -7,6 +7,7 @@ module QuickSearch
     include QuickSearch::EncodeUtf8
     include QuickSearch::QueryFilter
     include QuickSearch::SearcherConfig
+    include QuickSearch::SearchHelper
 
     require 'benchmark_logger'
 
@@ -19,37 +20,13 @@ module QuickSearch
       http_search
     end
 
-    def corrections
-      if !params_q_scrubbed
-        return []
-      end
-      query_clean = params_q_scrubbed.downcase
-      if DICTIONARY.include?(query_clean)
-        corrections = []
-      else
-        corrections = SPELL_CHECKER.correct(query_clean)
-        if corrections.length == 0
-          correction = []
-          query_clean.split(' ').each do | q |
-            if !DICTIONARY.include?(q)
-              correction.push(SPELL_CHECKER.correct(q).first)
-            else
-              correction.push(q)
-            end
-          end
-          corrections = [correction.join(' ')] if correction.join(' ') != query_clean else []
-        end
-      end
-      return corrections
-    end
-
     def all_good_bets
       good_bets = []
-      best_bet_links = !@best_bets.is_a?(QuickSearch::SearcherError) ? @best_bets.results.flatten.map{|elem|elem[:link] ? elem[:link] : elem[:url] ? elem[:url] : ''} : []
+      best_bet_links = !@best_bets.is_a?(QuickSearch::SearcherError) ? @best_bets.results.flatten.map{|elem|elem[:link] ? stripcharacter(elem[:link], '/') : elem[:url] ? stripcharacter(elem[:url], '/') : ''} : []
       items = [@best_bets, @faq, @website,@smart_subjects, @ematrix_database,@ematrix_journal, @lynda]
       items.each do |item|
         if !item.is_a?(QuickSearch::SearcherError)
-          filteredGoodBets = item.goodBets.select{|gb|!best_bet_links.include?(gb[:link])}
+          filteredGoodBets = item.goodBets.select{|gb|!best_bet_links.include?(stripcharacter(gb[:link], '/'))}
           good_bets.concat(filteredGoodBets)
         end
       end
@@ -163,7 +140,7 @@ module QuickSearch
       @search_form_placeholder = I18n.t "#{endpoint}_search.search_form_placeholder"
       @page_title = I18n.t "#{endpoint}_search.display_name"
       @module_callout = I18n.t "#{endpoint}_search.module_callout"
-      @corrections = corrections()
+      @corrections = corrections(params_q_scrubbed)
       if search_in_params?
         @query = params_q_scrubbed
         @search_in_params = true
