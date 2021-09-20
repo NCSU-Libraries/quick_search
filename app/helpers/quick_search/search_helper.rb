@@ -20,7 +20,7 @@ module QuickSearch::SearchHelper
           if corrections.length == 0 || multiwordcheck
             correction = []
             query_list.each do | q |
-              if !DICTIONARY.include?(q)
+              if !DICTIONARY.include?(q) && q.length > 2
                 checker = SPELL_CHECKER.correct(q).first
                 check = checker.present? ? (q.length - checker.length).abs() : 3
                 check2 = checker.present? ? (checker.chars - q.chars).concat(q.chars - checker.chars).uniq.count : 4
