@@ -136,11 +136,10 @@ module QuickSearch
 
     def http_search(endpoint = 'defaults', page_to_render = :index)
       @ip = request.remote_ip
-
       @search_form_placeholder = I18n.t "#{endpoint}_search.search_form_placeholder"
       @page_title = I18n.t "#{endpoint}_search.display_name"
       @module_callout = I18n.t "#{endpoint}_search.module_callout"
-      @corrections = corrections(params_q_scrubbed)
+      @spell_check = spell_check(params_q_scrubbed)
       if search_in_params?
         @query = params_q_scrubbed
         @search_in_params = true
