@@ -23,7 +23,7 @@ module QuickSearch
     def all_good_bets
       good_bets = []
       best_bet_links = !@best_bets.is_a?(QuickSearch::SearcherError) ? @best_bets.results.flatten.map{|elem|elem[:link] ? stripcharacter(elem[:link], '/') : elem[:url] ? stripcharacter(elem[:url], '/') : ''} : []
-      items = [@best_bets, @faq, @website,@smart_subjects, @ematrix_database,@ematrix_journal, @lynda]
+      items = [@best_bets, @website, @smart_subjects, @ematrix_database, @ematrix_journal, @lynda]
       items.each do |item|
         if !item.is_a?(QuickSearch::SearcherError)
           filteredGoodBets = item.goodBets.select{|gb|!best_bet_links.include?(stripcharacter(gb[:link], '/'))}
