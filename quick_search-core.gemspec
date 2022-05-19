@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.2.2'
 
-  s.add_dependency "rails", "~> 5.2"
+  s.add_dependency "rails", "~> 6.1"
   s.add_dependency 'jquery-rails', '~> 4.3'
   s.add_dependency "kaminari"
   s.add_dependency "nokogiri"
