@@ -37,7 +37,7 @@ module QuickSearch
       results.each do |result|
         cleantitle = cleantitlearray(result.title).join(" ")
         matchwords = cleantitlearray(@q).map{|word|cleantitle.include? word}
-        if matchwords.count(true)/matchwords.length.to_f > 0.75
+        if matchwords.count(true)/matchwords.length.to_f > 0.74
           searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher
