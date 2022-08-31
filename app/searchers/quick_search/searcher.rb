@@ -26,14 +26,18 @@ module QuickSearch
     end
 
     def cleantitlearray(title)
-      title.downcase.gsub(/[^0-9a-zA-Z ]+/, "").split(" ")
+      titlewords = title.downcase.gsub(/[^0-9a-zA-Z ]+/, "").split(" ")
+      stopwords = ["in", "of", "its", "a", "an", "the", "for", "that", "and", "be", "for"]
+      titlewords = titlewords.select {|word|!stopwords.include?(word)}
+      titlewords
     end
 
     def goodBets
       goodbets = []
       results.each do |result|
-        cleantitle = cleantitlearray(result.title)
-        if cleantitlearray(@q).all? {|x|cleantitle.include? x}
+        cleantitle = cleantitlearray(result.title).join(" ")
+        matchwords = cleantitlearray(@q).map{|word|cleantitle.include? word}
+        if matchwords.count(true)/matchwords.length.to_f > 0.75
           searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher
