@@ -27,7 +27,7 @@
 <% if result["description"] %>
     <div class='description'>
         <p class='description-truncated'>
-            <%= truncate(result["description"].html_safe, length: 200) %>
+            <%= truncate(result["description"].html_safe, length: 200, :escape => false) %>
 
             <% if result["description"].length > 200 %>
                 <%= link_to 'Read more', '#', class: "read-more" %>

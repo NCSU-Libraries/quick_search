@@ -7,16 +7,30 @@ module QuickSearch
     include QuickSearch::EncodeUtf8
     include QuickSearch::QueryFilter
     include QuickSearch::SearcherConfig
+    include QuickSearch::SearchHelper
 
     require 'benchmark_logger'
 
     before_action :doi_trap, :log_query
     after_action :realtime_message, only: [:index]
-
+    helper_method :all_good_bets
     def index
       loaded_searches
       @common_searches = common_searches
       http_search
+    end
+
+    def all_good_bets
+      good_bets = []
+      best_bet_links = !@best_bets.is_a?(QuickSearch::SearcherError) ? @best_bets.results.flatten.map{|elem|elem[:link] ? stripcharacter(elem[:link], '/') : elem[:url] ? stripcharacter(elem[:url], '/') : ''} : []
+      items = [@best_bets, @website, @smart_subjects, @ematrix_database, @ematrix_journal, @lynda]
+      items.each do |item|
+        if !item.is_a?(QuickSearch::SearcherError)
+          filteredGoodBets = item.goodBets.select{|gb|!best_bet_links.include?(stripcharacter(gb[:link], '/'))}
+          good_bets.concat(filteredGoodBets)
+        end
+      end
+      return good_bets
     end
 
     # TODO: throw error if required files not in place
@@ -122,11 +136,10 @@ module QuickSearch
 
     def http_search(endpoint = 'defaults', page_to_render = :index)
       @ip = request.remote_ip
-
       @search_form_placeholder = I18n.t "#{endpoint}_search.search_form_placeholder"
       @page_title = I18n.t "#{endpoint}_search.display_name"
       @module_callout = I18n.t "#{endpoint}_search.module_callout"
-
+      @spell_check = spell_check(params_q_scrubbed)
       if search_in_params?
         @query = params_q_scrubbed
         @search_in_params = true
