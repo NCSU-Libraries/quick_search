@@ -1,6 +1,8 @@
 module QuickSearch
   class AppstatsController < ApplicationController
     include Auth
+  
+    require 'vega'
 
     before_action :auth, :get_dates, :days_in_sample
 

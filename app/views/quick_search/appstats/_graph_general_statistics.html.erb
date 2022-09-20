@@ -1,4 +1,15 @@
 <h1><%= @page_title %></h1>
+<div>
+<%= Vega.lite
+    .data([{city: "A", sales: 28}, {city: "B", sales: 55}, {city: "C", sales: 43}])
+    .mark(type: "bar", tooltip: true)
+    .encoding(
+        x: {field: "city", type: "nominal"},
+        y: {field: "sales", type: "quantitative"}
+        )
+    %> 
+</div>
+
 <div class="graphGroup">
     <div class="iconContainer" id="tableIconContainer"></div>
     <svg class="graph" id="graph_general_table" width="840" height="473"></svg>

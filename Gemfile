@@ -17,7 +17,7 @@ end
 
 group :test do
   gem 'headless'
-  gem 'capybara-webkit'
+  # gem 'capybara-webkit'
   gem 'launchy'
   gem 'vcr'
   gem 'webmock'
@@ -42,3 +42,4 @@ group :development, :test do
   gem 'capistrano-bundler', require: false
   gem 'capistrano-rvm', '~> 0.1.2', require: false
 end
+
