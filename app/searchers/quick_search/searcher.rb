@@ -43,7 +43,7 @@ module QuickSearch
           searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher.gsub(' ', '-').downcase
-          good_bet_result[:page_type] = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : searcher
+          good_bet_result[:page_type] = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : good_bet_result[:page_type].present? ? good_bet_result[:page_type] : searcher
           goodbets.push(good_bet_result)
         end
       end
