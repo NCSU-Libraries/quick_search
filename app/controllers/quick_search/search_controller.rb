@@ -27,7 +27,16 @@ module QuickSearch
       items.each do |item|
         if !item.is_a?(QuickSearch::SearcherError)
           filteredGoodBets = item.goodBets.select{|gb|!best_bet_links.include?(stripcharacter(gb[:link], '/'))}
-          good_bets.concat(filteredGoodBets)
+          gblinks = good_bets.map{|elem|elem[:link]}
+          filteredGoodBets.each do |fgb|
+            unless gblinks.include?(fgb[:link])
+              matchpattern = Regexp.new(@query.split(" ").join("|"), Regexp::IGNORECASE)
+              fgb[:title] = fgb[:title].gsub(matchpattern) { |match| "<b>#{match}</b>" }
+              fgb[:isgoodbet] = true
+              fgb[:description] = fgb[:description] ? fgb[:description].gsub(matchpattern) { |match| "<b>#{match}</b>" } : ""
+              good_bets.push(OpenStruct.new(fgb))
+            end
+          end
         end
       end
       return good_bets
