@@ -17,15 +17,13 @@ end
 
 group :test do
   gem 'headless'
-  gem 'capybara-webkit'
   gem 'launchy'
   gem 'vcr'
   gem 'webmock'
   gem 'sqlite3', '~> 1.3.6'
-  gem 'rails-controller-testing'
 
   # include a theme and some searchers for integration tests
-  gem 'quick_search-generic_theme'
+  gem 'quick_search-generic_theme', git: "git@github.com:NCSU-Libraries/quick_search-generic_theme"
   gem 'quick_search-wikipedia_searcher'
   gem 'quick_search-arxiv_searcher'
   gem 'quick_search-open_library_searcher'
