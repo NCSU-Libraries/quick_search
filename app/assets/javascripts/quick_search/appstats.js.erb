@@ -12,8 +12,8 @@
 
 $(document).on("turbolinks:load", function() {
 	var dateFormat = "mm/dd/yy",
-		from = $("#from").datepicker({
-			defaultDate: "-180d",
+		from = $("#start_date").datepicker({
+			# defaultDate: "-180d",
 			maxDate: 0,
 			changeMonth: true,
 			changeYear: true,
@@ -22,8 +22,8 @@ $(document).on("turbolinks:load", function() {
 		.on("change", function() {
 			to.datepicker("option", "minDate", getDate(this));
 		}),
-		to = $("#to").datepicker({
-			defaultDate: "+0",
+		to = $("#end_date").datepicker({
+			# defaultDate: "+0",
 			maxDate: 0,
 			changeMonth: true,
 			changeYear: true,
@@ -33,8 +33,8 @@ $(document).on("turbolinks:load", function() {
 			from.datepicker("option", "maxDate", getDate(this));
 		});
 
-		$("#from").datepicker('setDate', new Date(new Date() - 180*24*60*60*1000));
-		$("#to").datepicker('setDate', new Date());
+		$("#start_date").datepicker('setDate', new Date(new Date() - 180*24*60*60*1000));
+		$("#end_date").datepicker('setDate', new Date());
 		var number = document.getElementById("num");
 		if (number) { 
 			number.onkeydown = function(e) {

@@ -1,9 +1,48 @@
 <% title("#{@page_title} | ") %>
-<%= render partial: 'datatables' %>
 <div class="row">
     <%= render partial: 'menu' %>
     <div class="medium-8 columns">
-        <%= render partial: 'graph_clicks_overview' %>
+        <h1>Clicks Overview</h1>
+        <h2>Frequency of Modules Clicked</h2>
+        <table style="width:75%">
+        <tr>
+            <th>Rank</th>
+            <th>Module Clicked</th>
+            <th>Count</th>
+            <th>Percent</th>
+        </tr>
+
+        <% @modules_clicked.each do |item| %>
+            <tr>
+              <td><%= item['rank'] %></td>         
+              <td><%= item['label'] %></td>     
+              <td><%= item['clickcount'] %></td> 
+              <td><%= item['percentage'] %></td>        
+            </tr>
+            <% end %>
+        </table>
+        <%= Vega.render(@clicks_modules_spec) %>
+
+        <h2>Frequency of Result Type Guides Clicked</h2>
+        <table style="width:75%">
+        <tr>
+            <th>Rank</th>
+            <th>Result Clicked</th>
+            <th>Count</th>
+            <th>Percent</th>
+        </tr>
+
+        <% @guides_clicked.each do |item| %>
+            <tr>
+              <td><%= item['rank'] %></td>         
+              <td><%= item['label'] %></td>     
+              <td><%= item['clickcount'] %></td> 
+              <td><%= item['percentage'] %></td>        
+            </tr>
+            <% end %>
+        </table>
+        <%= Vega.render(@clicks_guides_spec) %>
+    
     </div>
     <%= render partial: "date_range" %>
 </div>

@@ -1,11 +1,57 @@
 <% title("#{@page_title} | ") %>
-<%= render partial: 'datatables' %>
 <div class="row">
     <%= render partial: 'menu' %>
     <div class="medium-8 columns">
-        <h2>General Statistics</h2>
-        <%= render partial: 'graph_general_statistics'  %>
-    </div>
+        <h1>General Statistics</h1>
+        <div>
+            <table style="width:75%">
+            <tr>
+                <th></th>
+                <th>Total</th>
+                <th>Per Day</th>
+                <th>Per Click</th>
+                <th>Per Search</th>
+                <th>Per Session</th>
+            </tr>
+            <tr>
+                <td>Clicks</td>
+                <td> <%= @total_clicks.round(0) %> </td>
+                <td> <%= @clicks_per_day %> </td>
+                <td> <%= @clicks_per_click %> </td>
+                <td> <%= @clicks_per_search %> </td>
+                <td> <%= @clicks_per_session %> </td>
+            </tr>
+            <tr>
+                <td>Searches</td>
+                <td> <%= @total_searches.round(0) %> </td>
+                <td> <%= @searches_per_day %> </td>
+                <td> <%= @searches_per_click %> </td>
+                <td> <%= @searches_per_search %> </td>
+                <td> <%= @searches_per_session %> </td>
+            </tr>
+            <tr>
+                <td>Sessions</td>
+                <td> <%= @total_sessions.round(0) %> </td>
+                <td> <%= @sessions_per_day %> </td>
+                <td> <%= @sessions_per_click %> </td>
+                <td> <%= @sessions_per_search %> </td>
+                <td> <%= @sessions_per_session %> </td>
+            </tr>
+            </table>
+        </div>
+
+        <div> 
+            <h1></h1>
+            <%= Vega.render(@clicks_spec) %>
+            <p></p>
+            <%= Vega.render(@searches_spec) %>
+            <p></p>
+            <%= Vega.render(@sessions_spec) %>
+        </div>
+
+        </div>
     <%= render partial: "date_range" %>
 </div>
+
+
 

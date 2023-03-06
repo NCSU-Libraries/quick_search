@@ -1,9 +1,11 @@
 <% title("#{@page_title} | ") %>
-<%= render partial: 'datatables' %>
 <div class="row">
     <%= render partial: "menu" %>
     <div class="medium-8 columns">
-        <%= render partial: 'graph_sessions_details' %>
+        <h1> Sessions Details </h1>
+        <%= @sessions_location %>
+        <%= Vega.render(@location_spec)%>
+        <%= Vega.render(@device_spec) %>
     </div>
     <%= render partial: "date_range" %>
 </div>

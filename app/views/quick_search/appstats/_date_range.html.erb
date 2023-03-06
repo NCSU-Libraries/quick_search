@@ -1,16 +1,18 @@
 <% title('Foo') %>
 <div class="medium-2 columns" style="position: fixed; right: 0;">
 	<div style="">
-	<label  for="from" 		class="inputLabel"> From: </label>
-    <input  id="from"		type="text" 	name="from">
-	<label  for="to" 		class="inputLabel"> To: </label>
-    <input  id="to"			type="text" 	name="to">
+    <%= form_with local:true, :method => :get do |form| %>
+        <%= form.label :start_date , "From: "%>
+        <%= form.text_field :start_date, value:@start_date.strftime('%m/%d/%Y') %>
+        <%= form.label :end_date , "To: "%>
+        <%= form.text_field :end_date, value:@end_date.strftime('%m/%d/%Y') %>
+        <%= form.submit "Update" %>
+    <% end %>
 	<p id="datePickerText"> Days in Sample: </p> 
 	<p id="numDays"><%= "#{@days_in_sample}" %></p>
     <% if @page_title=='spelling-suggestion'||@page_title=='best-bets-regular'||@page_title=='Top Searches' %> 
         <label  for="num"		class="inputLabel"> # Results: </label>
    		<input  id="num"		type="number" 	name="num" min="0" max="200">
     <% end %>
-    <button id="dateButton"	type="button"> Update </button>
     <div>
 </div>

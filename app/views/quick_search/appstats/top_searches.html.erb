@@ -1,9 +1,30 @@
 <% title("#{@page_title} | ") %>
-<%= render partial: 'datatables' %>
 <div class="row">
     <%= render partial: "menu" %>
     <div class="medium-8 columns">
-        <%= render partial: 'graph_top_searches' %>
+        <h1> Top Seaches </h1>
+        <h2> Most Frequent Searches </h2>
+
+        <table style="width:75%">
+        <tr>
+            <th>Rank</th>
+            <th>Query</th>
+            <th>Count</th>
+            <th>Percent</th>
+            <th>Cumulative Percent</th>
+        </tr>
+
+        <% @top_searches.each do |item| %>
+            <tr>
+              <td><%= item['rank'] %></td>         
+              <td><%= item['label'] %></td>     
+              <td><%= item['count'] %></td> 
+              <td><%= item['percentage'] %></td>  
+              <td><%= item['cum_percentage'] %></td>       
+            </tr>
+            <% end %>
+        </table>
     </div>
+    
     <%= render partial: "date_range" %>
 </div>

@@ -1,13 +1,49 @@
 <% title("#{@page_title} | ") %>
-<%= render partial: 'datatables' %>
 <div class="row">
     <%= render partial: "menu" %>
     <div class="medium-8 columns">
         <% if @page_title=='spelling-suggestion' %> 
-            <%= render partial: 'graph_spelling_suggestions' %>
+            <h1>Spelling Suggestions</h1>
+            <table style="width:75%">
+            <tr>
+                <th>Rank</th>
+                <th>Spelling Suggestion</th>
+                <th>Serve Count</th>
+                <th>Click Count</th>
+                <th>Click/Serve</th>
+            </tr>
+            <% @spelling_suggestion.each do |item| %>
+                <tr>
+                  <td><%= item['rank'] %></td>         
+                  <td><%= item['label'] %></td>     
+                  <td><%= item['serves'] %></td> 
+                  <td><%= item['clicks'] %></td>  
+                  <td><%= item['ratio'] %>%</td>       
+                </tr>
+                <% end %>
+            </table>
         <% end %>
-        <% if @page_title=='best-bets-regular' %> 
-            <%= render partial: 'graph_best_bets' %>
+
+        <% if @page_title.start_with? 'best-bets-' %> 
+            <h1><%= @page_title %></h1>
+            <table style="width:75%">
+            <tr>
+                <th>Rank</th>
+                <th>Best Bet</th>
+                <th>Serve Count</th>
+                <th>Click Count</th>
+                <th>Click/Serve</th>
+            </tr>
+            <% @best_bets_reg.each do |item| %>
+                <tr>
+                  <td><%= item['rank'] %></td>         
+                  <td><%= item['label'] %></td>     
+                  <td><%= item['serves'] %></td> 
+                  <td><%= item['clicks'] %></td>  
+                  <td><%= item['ratio'] %>%</td>       
+                </tr>
+                <% end %>
+            </table>
         <% end %>
     </div>
     <%= render partial: "date_range" %>

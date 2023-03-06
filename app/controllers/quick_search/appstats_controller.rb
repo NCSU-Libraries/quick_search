@@ -2,49 +2,42 @@ module QuickSearch
   class AppstatsController < ApplicationController
     include Auth
 
-    before_action :auth, :get_dates, :days_in_sample
+    before_action :get_dates, :days_in_sample #, :auth
 
     def data_general_statistics
-      @result = []
+      @graph_result = []
 
       clicks = Event.where(@range).where(:action => 'click').group(:created_at_string).order("created_at_string ASC").count(:created_at_string)
-      @result << process_time_query(clicks)
+      @graph_result << process_time_query(clicks)
 
       sessions = Session.where(@range).group(:created_at_string).order("created_at_string ASC").count(:created_at_string)
-      @result << process_time_query(sessions)
+      @graph_result << process_time_query(sessions)
 
       searches = Search.where(@range).group(:created_at_string).order("created_at_string ASC").count(:created_at_string)
-      @result << process_time_query(searches)
-
-      render_data
+      @graph_result << process_time_query(searches)
     end
 
     def data_general_table
-      @result = []
+      @table_result = []
 
-      @result << { "clicks" => Event.where(@range).where(:action => 'click').count }
-      @result << { "searches" => Search.where(@range).count }
-      @result << { "sessions" => Session.where(@range).count }
+      @table_result << { "clicks" => Event.where(@range).where(:action => 'click').count }
+      @table_result << { "searches" => Search.where(@range).count }
+      @table_result << { "sessions" => Session.where(@range).count }
 
-      render_data
     end
 
     def data_module_clicks
       clicks = Event.where(@range).where(excluded_categories).where(:action => 'click').group(:category).order("count_category DESC").count(:category)
       total_clicks = clicks.values.sum
 
-      @result = process_module_result_query(clicks, "module", 0, 100, total_clicks)
-
-      render_data
+      @clicks_module_result = process_module_result_query(clicks, "module", 0, 100, total_clicks)
     end
 
     def data_result_clicks
       clicks = Event.where(@range).where(:category => "result-types").where(:action => 'click').group(:item).order("count_item DESC").count(:item)
       total_clicks = clicks.values.sum
 
-      @result = process_module_result_query(clicks, "result", 0, 100, total_clicks)
-
-      render_data
+      @clicks_guides_result = process_module_result_query(clicks, "result", 0, 100, total_clicks)
     end
 
     def data_module_details
@@ -62,9 +55,7 @@ module QuickSearch
       searches = Search.where(:page => '/').where(@range).group(:query).order('count_query DESC').count(:query)
       total_searches = searches.sum {|k,v| v}
 
-      @result = process_searches_query(searches, num_results, total_searches)
-
-      render_data
+      @top_searches_result = process_searches_query(searches, num_results, total_searches)
     end
 
     def data_spelling_suggestions
@@ -73,8 +64,6 @@ module QuickSearch
       clicks = Event.where(@range).where(:category => "spelling-suggestion", :action => 'click').group(:item).count(:category)
 
       @result = process_spelling_best_bets_query(serves, clicks, "spelling_suggestion", 0, num_results)
-
-      render_data
     end
 
     def data_spelling_details
@@ -87,24 +76,21 @@ module QuickSearch
       render_data
     end
 
-    def data_best_bets
+    def data_best_bets(best_bets_title)
       num_results = params[:num_results] ? params[:num_results].to_i : 20
-      serves = Event.where(@range).where(:category => "best-bets-regular", :action => 'serve').group(:item).order("count_category DESC").count(:category)
-      clicks = Event.where(@range).where(:category => "best-bets-regular", :action => 'click').group(:item).count(:category)
-
+      serves = Event.where(@range).where(:category => best_bets_title, :action => 'serve').group(:item).order("count_category DESC").count(:category)
+      clicks = Event.where(@range).where(:category => best_bets_title, :action => 'click').group(:item).count(:category)
+      puts serves
+      puts clicks
       @result = process_spelling_best_bets_query(serves, clicks, "best_bet", 0, num_results)
-
-      render_data
     end
 
-    def data_best_bets_details
+    def data_best_bets_details(best_bets_title)
       item = params[:item]
-      serves = Event.where(@range).where(:category => "best-bets-regular", :action => 'serve', :item => item).group(:query).order("count_query DESC").count(:query)
-      clicks = Event.where(@range).where(:category => "best-bets-regular", :action => 'click', :item => item).group(:query).count(:query)
+      serves = Event.where(@range).where(:category => best_bets_title, :action => 'serve', :item => item).group(:query).order("count_query DESC").count(:query)
+      clicks = Event.where(@range).where(:category => best_bets_title, :action => 'click', :item => item).group(:query).count(:query)
 
       @result = process_spelling_best_bets_query(serves, clicks, "best_bet_details", item, 15)
-
-      render_data
     end
 
     # In order to obtain all filter cases, an integer corresponding to the following truth table is formed:
@@ -159,8 +145,6 @@ module QuickSearch
       end
 
       @result = process_time_query(sessions)
-
-      render_data
     end
 
     def data_sessions_location
@@ -169,8 +153,6 @@ module QuickSearch
       sessions_off = Session.where(@range).where(:on_campus => false).group(:created_at_string).order("created_at_string ASC").count(:created_at_string)
 
       @result = process_stacked_time_query(sessions_on, sessions_off, use_perc)
-      
-      render_data
     end
 
     def data_sessions_device
@@ -179,8 +161,6 @@ module QuickSearch
       sessions_off = Session.where(@range).where(:is_mobile => false).group(:created_at_string).order("created_at_string ASC").count(:created_at_string)
 
       @result = process_stacked_time_query(sessions_on, sessions_off, use_perc)
-      
-      render_data
     end
 
     def process_time_query(query)
@@ -275,30 +255,336 @@ module QuickSearch
 
     def index
       @page_title = 'Search Statistics'
+
+      @table_result = data_general_table
+
+      @total_clicks = @table_result[0]["clicks"].to_f
+      @total_searches = @table_result[1]["searches"].to_f
+      @total_sessions = @table_result[2]["sessions"].to_f
+
+      @clicks_per_day = (@total_clicks/(@days_in_sample.to_f)).round(4)
+      @clicks_per_click = (@total_clicks/@total_clicks).round(0)
+      @clicks_per_search = (@total_clicks/@total_searches).round(4)
+      @clicks_per_session = (@total_clicks/@total_sessions).round(4)
+
+      @searches_per_day = (@total_searches/(@days_in_sample.to_f)).round(4)
+      @searches_per_click = (@total_searches/@total_clicks).round(4)
+      @searches_per_search = (@total_searches/@total_searches).round(0)
+      @searches_per_session = (@total_searches/@total_sessions).round(4)
+
+      @sessions_per_day = (@total_sessions/(@days_in_sample.to_f)).round(4)
+      @sessions_per_click = (@total_sessions/@total_clicks).round(4)
+      @sessions_per_search = (@total_sessions/@total_searches).round(4)
+      @sessions_per_session = (@total_sessions/@total_sessions).round(0)
+
+      @graph_result = data_general_statistics 
+
+      @clicks_spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": {
+          "name": "clicks",
+          "values": @graph_result[0]
+          },
+        "title": {
+          "text": "Clicks",
+          "anchor": "middle"},
+        "vconcat": [{
+          "width": 800,
+          "height": 600,
+          "mark": "area",
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal",
+              "scale": {"domain": {"param": "brush"}},
+              "axis": {"title": ""}
+            },
+            "y": {"field": "count", "type": "quantitative"}
+          }
+        }, {
+          "width": 800,
+          "height": 120,
+          "mark": "area",
+          "params": [{
+            "name": "brush",
+            "select": {"type": "interval", "encodings": ["x"]}
+          }],
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal"
+            },
+            "y": {
+              "field": "count",
+              "type": "quantitative",
+              "axis": {"tickCount": 3, "grid": false}
+            }
+          }
+        }]
+      }
+
+      @searches_spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": {
+          "name": "searches",
+          "values": @graph_result[1]
+          },
+        "title": {
+          "text": "Searches",
+          "anchor": "middle"},
+        "vconcat": [{
+          "width": 800,
+          "height": 600,
+          "mark": "area",
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal",
+              "scale": {"domain": {"param": "brush"}},
+              "axis": {"title": ""}
+            },
+            "y": {"field": "count", "type": "quantitative"}
+          }
+        }, {
+          "width": 800,
+          "height": 120,
+          "mark": "area",
+          "params": [{
+            "name": "brush",
+            "select": {"type": "interval", "encodings": ["x"]}
+          }],
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal"
+            },
+            "y": {
+              "field": "count",
+              "type": "quantitative",
+              "axis": {"tickCount": 3, "grid": false}
+            }
+          }
+        }]
+      }
+
+      @sessions_spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": {
+          "name": "sessions",
+          "values": @graph_result[2]
+          },
+        "title": {
+          "text": "Sessions",
+          "anchor": "middle"},
+        "vconcat": [{
+          "width": 800,
+          "height": 600,
+          "mark": "area",
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal",
+              "scale": {"domain": {"param": "brush"}},
+              "axis": {"title": ""}
+            },
+            "y": {"field": "count", "type": "quantitative"}
+          }
+        }, {
+          "width": 800,
+          "height": 120,
+          "mark": "area",
+          "params": [{
+            "name": "brush",
+            "select": {"type": "interval", "encodings": ["x"]}
+          }],
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal"
+            },
+            "y": {
+              "field": "count",
+              "type": "quantitative",
+              "axis": {"tickCount": 3, "grid": false}
+            }
+          }
+        }]
+      }
     end
 
     def clicks_overview
       @page_title = 'Clicks Overview'
+
+      @modules_clicked = data_module_clicks
+
+      @guides_clicked = data_result_clicks
+
+      @clicks_modules_spec = 
+        {
+          "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+          "description": "Pie Chart with percentage_tooltip",
+          "title": "Clicks Overview",
+          "data": {
+            "values": @modules_clicked
+          },
+          "mark": {"type": "arc", "tooltip": true},
+          "encoding": {
+            "theta": {"field": "clickcount", "type": "quantitative", "stack": "normalize"},
+            "color": {"field": "label", "type": "nominal"}
+          },
+          "width": 800, 
+          "height": 600
+        }
+      @clicks_guides_spec = 
+        {
+          "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+          "description": "Pie Chart with percentage_tooltip",
+          "title": "Modules Overview",
+          "data": {
+            "values": @guides_clicked
+          },
+          "mark": {"type": "arc", "tooltip": true},
+          "encoding": {
+            "theta": {"field": "clickcount", "type": "quantitative", "stack": "normalize"},
+            "color": {"field": "label", "type": "nominal"}
+          },
+          "width": 800, 
+          "height": 600
+        }
     end
 
     def top_searches
       @page_title = 'Top Searches'
+
+      @top_searches = data_top_searches
     end
 
     def top_spot
       @page_title = params[:ga_top_spot_module]
+
+      @spelling_suggestion  = data_spelling_suggestions
+      @best_bets_reg = data_best_bets(@page_title)
+
+      # puts '######################################'
+      # puts @best_bets_reg 
+      # puts @page_title
     end
 
     def sessions_overview
       @page_title = 'Sessions Overview'
+
+      @sessions_data = data_sessions_overview
+
+      @sessions_spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": {
+          "name": "sessions",
+          "values": @sessions_data
+          },
+        "title": {
+          "text": "Sessions Overview",
+          "anchor": "middle"},
+        "vconcat": [{
+          "width": 800,
+          "height": 600,
+          "mark": "area",
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal",
+              "scale": {"domain": {"param": "brush"}},
+              "axis": {"title": ""}
+            },
+            "y": {"field": "count", "type": "quantitative"}
+          }
+        }, {
+          "width": 800,
+          "height": 120,
+          "mark": "area",
+          "params": [{
+            "name": "brush",
+            "select": {"type": "interval", "encodings": ["x"]}
+          }],
+          "encoding": {
+            "x": {
+              "field": "date",
+              "type": "temporal"
+            },
+            "y": {
+              "field": "count",
+              "type": "quantitative",
+              "axis": {"tickCount": 3, "grid": false}
+            }
+          }
+        }]
+      }
     end
 
     def sessions_details
       @page_title = 'Sessions Details'
+
+      @sessions_location = data_sessions_location
+
+      @sessions_device = data_sessions_device
+
+      @location_spec = {
+        "data": {
+          "values": @sessions_location},
+        "title": "Sessions Location",
+        "layer": [
+          {
+            "width": 800,
+            "height": 600,
+            "mark": {"type": "area", "color": "#3887c0"},
+            "encoding": {
+              "x": {"field": "date", "type": "temporal"},
+              "y": {"field": "on", "type": "quantitative"},
+            }
+          },
+          {
+            "width": 800,
+            "height": 600,
+            "mark": {"type": "area", "color": "#86bcdc", "opacity": 0.4},
+            "encoding": {
+              "x": {"field": "date", "type": "temporal"},
+              "y": {"field": "off", "type": "quantitative"},
+            }
+          }
+        ]
+      }
+
+      @location_spec = {
+        "data": {
+          "values": @sessions_location},
+        "title": "Sessions Location",
+        "layer": [
+          {
+            "width": 800,
+            "height": 600,
+            "mark": {"type": "area", "color": "#3887c0"},
+            "encoding": {
+              "x": {"field": "date", "type": "temporal"},
+              "y": {"field": "on", "type": "quantitative"},
+            }
+          },
+          {
+            "width": 800,
+            "height": 600,
+            "mark": {"type": "area", "color": "#86bcdc", "opacity": 0.4},
+            "encoding": {
+              "x": {"field": "date", "type": "temporal"},
+              "y": {"field": "off", "type": "quantitative"},
+            }
+          }
+        ]
+      }
+
+      #some combo of a horizon graph and the interactive area chart might reproduce what's currently in production? https://vega.github.io/vega-lite/examples/interactive_overview_detail.html, https://vega.github.io/vega-lite/examples/area_horizon.html
+      #or just simple layering: https://vega.github.io/vega-lite/docs/layer.html
     end
 
     def convert_to_time(date_input)
-      Time.parse(date_input)
+      Time.strptime(date_input, "%m/%d/%Y")
     end
 
     def days_in_sample
@@ -312,6 +598,7 @@ module QuickSearch
     def get_dates
       start = params[:start_date]
       stop = params[:end_date]
+      puts start
       if (!start.blank?)
         @start_date = convert_to_time(start)
       else
