@@ -37,13 +37,14 @@ module QuickSearch
       goodbets = []
       page_type_mapping = {'Lynda' => 'LinkedIn Learning', 'Ematrix Journal' => 'Journals', 'Ematrix Database' => 'Databases'}
       results.each do |result|
-        cleantitle = cleantitlearray(result.title, result.keywords).join(" ")
+        searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+        page_type = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : result.page_type.present? ? result.page_type : searcher
+        cleantitle = cleantitlearray(result.title, result.keywords).join(" ") + ' ' + page_type.downcase
         matchwords = cleantitlearray(@q).map{|word|cleantitle.include? word}
         if matchwords.count(true)/matchwords.length.to_f > 0.74
-          searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher.gsub(' ', '-').downcase
-          good_bet_result[:page_type] = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : good_bet_result[:page_type].present? ? good_bet_result[:page_type] : searcher
+          good_bet_result[:page_type] = page_type
           goodbets.push(good_bet_result)
         end
       end
