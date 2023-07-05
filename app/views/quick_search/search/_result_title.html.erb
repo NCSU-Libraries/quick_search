@@ -1,4 +1,8 @@
 <%= link_to link do %>
     <%= truncate(sanitize(title), :length => 100, separator: ' ') %>
 <% end %>
+<% type = nil if local_assigns[:type].nil? %>
+<% if type %>
+    <span class="<%= type.downcase.split(',').first.gsub(' ', '-').gsub('/', '-') %>-icon"></span>
+<% end %>
 <span class='date'><%= date %></span>
