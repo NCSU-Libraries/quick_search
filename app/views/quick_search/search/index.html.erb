@@ -74,7 +74,7 @@
                 <% end %>
             <% end %>        
         </div>
-        <div class="small-12 medium-8 medium-pull-4 columns website module">
+        <div class="small-12 medium-8 <% unless @faq.results.blank? %> medium-pull-4<% end %> columns website module">
             <%= render_module(@website, 'website') %>
         </div>
     </div>
