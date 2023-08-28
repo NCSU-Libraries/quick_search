@@ -26,6 +26,7 @@ module QuickSearch
     end
 
     def cleantitlearray(title, keywords=false)
+      title = title.kind_of?(Array) ? title.first : title
       titlewords = title.downcase.gsub(/[^0-9a-zA-Z ]+/, "").split(" ")
       titlewords = keywords.present? ? titlewords.concat(keywords) : titlewords
       stopwords = ["in", "of", "its", "a", "an", "the", "for", "that", "and", "be", "for"]
