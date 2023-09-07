@@ -1,4 +1,7 @@
 <%= link_to link do %>
     <%= truncate(sanitize(title), :length => 100, separator: ' ') %>
 <% end %>
+<% if local_assigns[:date_icon] && date_icon %>
+    <%= render partial: "/quick_search/search/date_display", locals: { date: date_icon } %>
+<% end %>
 <span class='date'><%= date %></span>
