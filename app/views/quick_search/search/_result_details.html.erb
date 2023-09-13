@@ -1,13 +1,14 @@
+
 <% unless result["mobile_link"] %>
     <h3 class='title'>
-        <%= render partial: "/quick_search/search/result_title", locals: { link: result['link'], title: result['title'], date: result['date'] } %>
+        <%= render partial: "/quick_search/search/result_title", locals: { link: result['link'], title: result['title'], date: result['date'], date_icon: result.display_date } %>
     </h3>
 <% else %>
     <h3 class='title show-for-medium-up'>
-        <%= render partial: "/quick_search/search/result_title", locals: { link: result['link'], title: result['title'], date: result['date'] } %>
+        <%= render partial: "/quick_search/search/result_title", locals: { link: result['link'], title: result['title'], date: result['date'],date_icon: result.display_date } %>
     </h3>
     <h3 class='title show-for-small-only'>
-        <%= render partial: "/quick_search/search/result_title", locals: { link: result['mobile_link'], title: result['title'], date: result['date'] } %>
+        <%= render partial: "/quick_search/search/result_title", locals: { link: result['mobile_link'], title: result['title'], date: result['date'], date_icon: result.display_date } %>
     </h3>
 <% end %>
 <p class='link'><%= result["link"] %></p>

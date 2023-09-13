@@ -30,11 +30,12 @@ module QuickSearch::DoiTrap
   end
 
   def doi_loaded_link
-     QuickSearch::Engine::APP_CONFIG['doi_loaded_link'] + CGI.escape(doi_regex.match(doi_query)[1])
+    QuickSearch::Engine::APP_CONFIG['doi_loaded_link'] + CGI.escape(doi_regex.match(doi_query)[1])
   end
 
   def doi_query
     query = params_q_scrubbed
+    query = query.gsub('https://', '').gsub('http://', '')
     query.strip!
     query.squish!
     query

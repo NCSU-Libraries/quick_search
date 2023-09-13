@@ -1,0 +1,36 @@
+.display-date {
+    padding: 10px 15px 0px 0px;
+    max-width: 65px;
+}
+
+.display-date .display-month {
+    background: #CC0000;
+}
+
+.display-date .display-month h4 {
+    color: #ffffff;
+    line-height: 1rem;
+    font-size: 1rem;
+    padding: 4px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.display-month h4 {
+    font-weight: bold!important;
+}
+.display-date .display-day {
+    border-bottom: 1px solid #AAAAAA;
+    border-left: 1px solid #AAAAAA;
+    border-right: 1px solid #AAAAAA;
+}
+
+.display-date .display-day h2 {
+    font-family: "UniversLight";
+    font-size: 2rem;
+    line-height: 2rem;
+    padding: 6px 0px;
+    margin: 0px;
+    text-align: center;
+}
