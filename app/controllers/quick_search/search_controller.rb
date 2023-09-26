@@ -20,15 +20,29 @@ module QuickSearch
       http_search
     end
 
+    def get_link_field(elemdict)
+      url = ''
+      if elemdict[:link]
+        url = strip_character(elem[:link], '/')
+      elsif elem[:url]
+        url = strip_character(elem[:url], '/')
+      end
+      url
+    end
+
     def all_good_bets
       good_bets = []
-      best_bet_links = !@best_bets.is_a?(QuickSearch::SearcherError) ? @best_bets.results.flatten.map{|elem|elem[:link] ? stripcharacter(elem[:link], '/') : elem[:url] ? stripcharacter(elem[:url], '/') : ''} : []
-      items = [@best_bets, @website, @smart_subjects, @ematrix_database, @ematrix_journal, @lynda]
+      best_bet_links = []
+      if !@best_bets.is_a?(QuickSearch::SearcherError)
+        best_bet_links = @best_bets.results.flatten.map{|elem|get_link_field(elem)}
+      end
+      items = QuickSearch::Engine::APP_CONFIG['good_bets_searchers'].present? ? QuickSearch::Engine::APP_CONFIG['good_bets_searchers'] : []
       items.each do |item|
+        item = instance_variable_get("@#{item}")
         if !item.is_a?(QuickSearch::SearcherError)
-          filteredGoodBets = item.goodBets.select{|gb|!best_bet_links.include?(stripcharacter(gb[:link], '/'))}
+          filtered_good_bets = item.good_bets.select{|gb|!best_bet_links.include?(strip_character(gb[:link], '/'))}
           gblinks = good_bets.map{|elem|elem[:link]}
-          filteredGoodBets.each do |fgb|
+          filtered_good_bets.each do |fgb|
             unless gblinks.include?(fgb[:link])
               matchpattern = Regexp.new(@query.split(" ").join("|"), Regexp::IGNORECASE)
               fgb[:title] = fgb[:title].gsub(matchpattern) { |match| "<b>#{match}</b>" }

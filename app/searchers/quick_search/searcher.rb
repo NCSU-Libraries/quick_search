@@ -25,7 +25,7 @@ module QuickSearch
       raise #FIXME: pick some good error
     end
 
-    def cleantitlearray(title, keywords=false)
+    def clean_title_array(title, keywords=false)
       title = title.kind_of?(Array) ? title.first : title
       titlewords = title.downcase.gsub(/[^0-9a-zA-Z ]+/, "").split(" ")
       titlewords = keywords.present? ? titlewords.concat(keywords) : titlewords
@@ -34,22 +34,24 @@ module QuickSearch
       titlewords
     end
 
-    def goodBets
-      goodbets = []
-      page_type_mapping = {'Lynda' => 'LinkedIn Learning', 'Ematrix Journal' => 'Journals', 'Ematrix Database' => 'Databases'}
+    def good_bets
+      good_bets = []
+      page_type_mapping =  QuickSearch::Engine::APP_CONFIG['page_type_mapping']
+      page_type_mapping.transform_keys{ |key| key.downcase }
       results.each do |result|
         searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+        searcher = searcher.downcase
         page_type = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : result.page_type.present? ? result.page_type : searcher
-        cleantitle = cleantitlearray(result.title, result.keywords).join(" ") + ' ' + page_type.downcase
-        matchwords = cleantitlearray(@q).map{|word|cleantitle.include? word}
-        if matchwords.count(true)/matchwords.length.to_f > 0.74
+        clean_title = clean_title_array(result.title, result.keywords).join(" ") + ' ' + page_type.downcase
+        match_words = clean_title_array(@q).map{|word|clean_title.include? word}
+        if match_words.count(true)/match_words.length.to_f > 0.74
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher.gsub(' ', '-').downcase
           good_bet_result[:page_type] = page_type
-          goodbets.push(good_bet_result)
+          good_bets.push(good_bet_result)
         end
       end
-      return goodbets
+      return good_bets
     end
     # Returns a String representing the link to use when no results are
     # found for a search.

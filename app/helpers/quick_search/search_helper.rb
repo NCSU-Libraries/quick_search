@@ -1,5 +1,5 @@
 module QuickSearch::SearchHelper
-    def stripcharacter(string, character)
+    def strip_character(string, character)
         string.gsub(/#{character}+$/, "").gsub(/#{character}+/, "")
     end
 
