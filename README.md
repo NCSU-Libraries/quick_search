@@ -149,6 +149,7 @@ QuickSearch (listed in alphabetical order)
 - Kevin Beswick
 - Nushrat Khan
 - Cory Lown
+- Niqui O'Neill
 - Jason Ronallo
 - Ryan West
 
