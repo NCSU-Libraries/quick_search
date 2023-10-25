@@ -23,9 +23,9 @@ module QuickSearch
     def get_link_field(elemdict)
       url = ''
       if elemdict[:link]
-        url = strip_character(elem[:link], '/')
-      elsif elem[:url]
-        url = strip_character(elem[:url], '/')
+        url = strip_character(elemdict[:link], '/')
+      elsif elemdict[:url]
+        url = strip_character(elemdict[:url], '/')
       end
       url
     end
