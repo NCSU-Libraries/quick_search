@@ -39,7 +39,7 @@ module QuickSearch
       page_type_mapping =  QuickSearch::Engine::APP_CONFIG['page_type_mapping'].present? ? QuickSearch::Engine::APP_CONFIG['page_type_mapping'] : {}
       page_type_mapping.transform_keys{ |key| key.downcase }
       results.each do |result|
-        searcher = result.webnode_type ? result.webnode_type.replace('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+        searcher = result.webnode_type ? result.webnode_type.gsub('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
         searcher = searcher.downcase
         page_type = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : result.page_type.present? ? result.page_type : searcher.titleize
         clean_title = clean_title_array(result.title, result.keywords).join(" ") + ' ' + page_type.downcase
