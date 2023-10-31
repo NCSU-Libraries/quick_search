@@ -25,6 +25,34 @@ module QuickSearch
       raise #FIXME: pick some good error
     end
 
+    def clean_title_array(title, keywords=false)
+      title = title.kind_of?(Array) ? title.first : title
+      titlewords = title.downcase.gsub(/[^0-9a-zA-Z ]+/, "").split(" ")
+      titlewords = keywords.present? ? titlewords.concat(keywords) : titlewords
+      stopwords = ["in", "of", "its", "a", "an", "the", "for", "that", "and", "be", "for"]
+      titlewords = titlewords.select {|word|!stopwords.include?(word)}
+      titlewords
+    end
+
+    def good_bets
+      good_bets = []
+      page_type_mapping =  QuickSearch::Engine::APP_CONFIG['page_type_mapping'].present? ? QuickSearch::Engine::APP_CONFIG['page_type_mapping'] : {}
+      page_type_mapping.transform_keys{ |key| key.downcase }
+      results.each do |result|
+        searcher = result.webnode_type ? result.webnode_type.gsub('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+        searcher = searcher.downcase
+        page_type = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : result.page_type.present? ? result.page_type : searcher.titleize
+        clean_title = clean_title_array(result.title, result.keywords).join(" ") + ' ' + page_type.downcase
+        match_words = clean_title_array(@q).map{|word|clean_title.include? word}
+        if match_words.count(true)/match_words.length.to_f > 0.74
+          good_bet_result = result.to_h
+          good_bet_result[:searcher] = searcher.gsub(' ', '-').downcase
+          good_bet_result[:page_type] = page_type
+          good_bets.push(good_bet_result)
+        end
+      end
+      return good_bets
+    end
     # Returns a String representing the link to use when no results are
     # found for a search.
     #

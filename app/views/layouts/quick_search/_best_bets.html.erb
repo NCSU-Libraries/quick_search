@@ -1,30 +1,60 @@
 <% unless best_bets.blank? %>
     <% if best_bets[:link].is_a?(String) %>
-        <div id="best-bets" class="row quicksearch-ga-serve-tracking quicksearch-ga-click-tracking">
-            <div class="small-12 columns best_bets module">
+        <div id="<%= best_bets.isgoodbet ? 'good-bets' : 'best-bets' %>" class="row quicksearch-ga-serve-tracking quicksearch-ga-click-tracking">
+            <div class="small-12 columns module <%= best_bets.isgoodbet ? 'good-bet' : 'best_bets' %>">
                 <h3 class='title'>
                     <%= link_to (best_bets[:link]),
                         :data => { :quicksearch_ga_action => best_bets[:id], 
                           :quicksearch_ga_category => best_bets[:best_bets_type] } do  %>
                             <i class='fa fa-angle-double-right'></i> 
-                            <%= best_bets[:title] %>
+                            <%= best_bets[:title].html_safe %>
                     <% end %>
-                     <span class='highlight'>Best&nbsp;Bet</span>
+                    <% if best_bets.isgoodbet %>
+                      <span class="searcher_type">
+                      <% if best_bets.page_type %>(<%= best_bets.page_type %>)
+                      <% end %>
+                      </span>
+                    <% else %>
+                      <span class='highlight'>Best&nbsp;Bet</span>
+                    <% end %>
                 </h3>
              
 				<p>
-					<% if best_bets[:description].length > 200 %>
-				    <%= truncate(best_bets[:description], length: 200) %>
-				    <%= link_to 'Read more', '', class: "read-more" %>
-				    <script>
-				      $('.read-more').on('click', function(e) {
-				        e.preventDefault()
-				        $(this).parent().html('<%= escape_javascript best_bets[:description] %>')
-				      })
-				    </script>
-				  <% else %>
-				    <%= best_bets[:description] %>
-				  <% end %>
+        <% if best_bets.description.length > 200 %>
+          <% readmoreid = best_bets.isgoodbet && index ? "read-more-#{index}" : 'read-more' %>
+          <% descriptionid = best_bets.isgoodbet && index ? "description-#{index}" : 'description' %>
+          <span id="<%= descriptionid %>-excerpt" class="description">
+            <%= sanitize(truncate(sanitize(best_bets[:description]), length: 200, :escape=> false)).html_safe %>
+          </span>
+          <span id="<%= descriptionid %>" style="display: none" class="description"> 
+            <%= best_bets[:description].html_safe %>
+          </span>
+          <a class="linkbutton" id="<%= readmoreid %>" onclick="toggleDescription(event,this)">Read more</a>
+          <script>
+            function toggleDescription(event, readMore) {
+              event.preventDefault();
+              event.stopPropagation();
+              const descid = readMore.id.replace('read-more', 'description');
+              const descex = descid + '-excerpt';
+              const description = document.getElementById(descid);
+              const descriptionex = document.getElementById(descex);
+              if (readMore.innerHTML == 'Read more'){
+                readMore.innerHTML = 'Read less'
+                description.style.display = 'block';
+                descriptionex.style.display = 'none';
+              } else {
+                readMore.innerHTML = 'Read more'
+                descriptionex.style.display = 'block';
+                description.style.display = 'none';
+              }
+              return false;
+            }
+          </script>
+          <% else %>
+            <span class="description">
+              <%= best_bets.description.html_safe %>
+            </span>
+          <% end %>
 			  </p>
             </div>
         </div>

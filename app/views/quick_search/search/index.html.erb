@@ -11,6 +11,7 @@
         </div>
     </div>
 </div>
+<% thirdbento = all_good_bets.length > 0 ? true : false %>
 <%# FIXME: This logic could stand a second look %>
 <% unless @summon.is_a? StandardError %>
     <% unless @best_bets.is_a? StandardError %>
@@ -36,12 +37,17 @@
 </div>
 <div class="quicksearch-ga-click-tracking">
     <div class="row articles-catalog">
-        <div class="small-12 medium-6 columns summon module">
+        <div class="small-12 columns summon module <%= thirdbento ? ' medium-4' : ' medium-6' %> ">
             <%= render_module(@summon, 'summon') %>
         </div>
-        <div class="small-12 medium-6 columns catalog module">
+        <div class="small-12 columns catalog module <%= thirdbento ? ' medium-4' : ' medium-6' %> ">
             <%= render_module(@catalog, 'catalog') %>
         </div>
+        <% if thirdbento %>
+            <div class="small-12 medium-4 columns module goodbets">
+                <%= render partial: 'layouts/quick_search/good_bets', locals: { good_bets: all_good_bets[0..4] } %>
+            </div>
+        <% end %>
         <hr>
     </div>
     <div class="row journals-databases">

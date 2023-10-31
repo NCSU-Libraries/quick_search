@@ -11,3 +11,4 @@ QuickSearch, and also how to create/configure new themes, and searchers.
 - [Endpoints](endpoints.md)
 - [Customizing Searchers](customizing_searchers.md)
 - [Customizing Themes](customizing_themes.md)
+- [Configuring Good Bets](good_bets.md)
