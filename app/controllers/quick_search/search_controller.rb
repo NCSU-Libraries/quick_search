@@ -207,7 +207,11 @@ module QuickSearch
     end
 
     def offset(page, per_page)
-      (page * per_page) - per_page
+      if page != 0
+        (page * per_page) - per_page
+      else
+        0
+      end
     end
 
     def page_in_params?
