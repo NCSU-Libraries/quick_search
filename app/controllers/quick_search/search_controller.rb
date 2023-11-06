@@ -44,7 +44,7 @@ module QuickSearch
           gblinks = good_bets.map{|elem|elem[:link]}
           filtered_good_bets.each do |fgb|
             unless gblinks.include?(fgb[:link])
-              matchpattern = Regexp.new(@query.split(" ").join("|"), Regexp::IGNORECASE)
+              matchpattern = Regexp.new(Regexp.escape(@query.split(" ").join("|")), Regexp::IGNORECASE)
               fgb[:title] = fgb[:title].gsub(matchpattern) { |match| "<b>#{match}</b>" }
               fgb[:isgoodbet] = true
               fgb[:description] = fgb[:description] ? fgb[:description].gsub(matchpattern) { |match| "<b>#{match}</b>" } : ""

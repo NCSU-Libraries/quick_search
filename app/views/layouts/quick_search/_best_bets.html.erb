@@ -20,7 +20,7 @@
                 </h3>
              
 				<p>
-        <% if best_bets.description.length > 200 %>
+        <% if best_bets.description && best_bets.description.length > 200 %>
           <% readmoreid = best_bets.isgoodbet && index ? "read-more-#{index}" : 'read-more' %>
           <% descriptionid = best_bets.isgoodbet && index ? "description-#{index}" : 'description' %>
           <span id="<%= descriptionid %>-excerpt" class="description">
