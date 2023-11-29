@@ -43,7 +43,7 @@ module QuickSearch
           filtered_good_bets = item.good_bets.select{|gb|!best_bet_links.include?(strip_character(gb[:link], '/'))}
           gblinks = good_bets.map{|elem|elem[:link]}
           filtered_good_bets.each do |fgb|
-            unless gblinks.include?(fgb[:link])
+            unless gblinks.include?(fgb[:link]) || fgb[:notgoodbet]
               matchpattern = Regexp.new(Regexp.escape(@query.split(" ").join("|")), Regexp::IGNORECASE)
               fgb[:title] = fgb[:title].gsub(matchpattern) { |match| "<b>#{match}</b>" }
               fgb[:isgoodbet] = true
