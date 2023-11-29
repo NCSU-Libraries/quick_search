@@ -11,7 +11,7 @@ module QuickSearch
     #
     # This way, we can make application specific overrides of views, otherwise fall back to theme,
     # and finally fall back to the QS core if needed.
-    
+
     initializer :quick_search, :after => :add_view_paths do
       config_file = File.join(Rails.root, "/config/quick_search_config.yml")
       if File.exist?(config_file)
@@ -44,12 +44,28 @@ module QuickSearch
     initializer :best_bets, :after => :quick_search do
       if defined? QuickSearch::Engine::APP_CONFIG and QuickSearch::Engine::APP_CONFIG['best_bets']['solr_url'].empty?
         best_bets_file = File.join(Rails.root, "/config/best_bets.yml")
+
         if File.exist?(best_bets_file)
+
+          # Helper class for enabling access to the "filter_query" method
+          # in QuickSearch::QueryFilter concern
+          class BestBetFilter
+            include QuickSearch::QueryFilter
+
+            def filter(keyword)
+              filter_query(keyword)
+            end
+          end
+
+          best_bet_filter = BestBetFilter.new
           QuickSearch::Engine::BEST_BETS = YAML.load_file(best_bets_file)['best_bets']
           QuickSearch::Engine::BEST_BETS_INDEX = {}
           QuickSearch::Engine::BEST_BETS.each do |best_bet_name, best_bet|
             QuickSearch::Engine::BEST_BETS[best_bet_name]['id'] = best_bet_name
             best_bet['keywords'].each do |keyword|
+              # Pass keyword through "filter_query" method so that keyword
+              # will match query term passed through the same method
+              keyword = best_bet_filter.filter(keyword)
               QuickSearch::Engine::BEST_BETS_INDEX[keyword.downcase] = best_bet_name
             end
           end
