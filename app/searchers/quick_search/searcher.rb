@@ -109,7 +109,7 @@ module QuickSearch
       queries = {}
       searcher = map_searcher_name().downcase.gsub(" ", "_")
       stop_words = QuickSearch::Engine::APP_CONFIG['stop_words']
-      exceptions = QuickSearch::Engine::APP_CONFIG['stop_word_exceptions']
+      exceptions = QuickSearch::Engine::APP_CONFIG['stop_words_exceptions']
       if exceptions
         if exceptions[searcher]
           stop_words = stop_words.reject {|word| exceptions[searcher].include?(word) }
@@ -117,7 +117,6 @@ module QuickSearch
       end
 
       query = filter_query(query, stop_words)
-
 
       queries['not_escaped'] = query
       queries['uri_escaped'] = CGI.escape(query.to_str)
