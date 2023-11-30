@@ -35,13 +35,17 @@ module QuickSearch
     end
 
     def map_searcher_name
-      return self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+      self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip().downcase
+    end
+
+    def clean_config_keys(config_dict)
+      config_dict.transform_keys{ |key| key.gsub(/[_-]/m, " ").downcase }
     end
 
     def good_bets
       good_bets = []
-      page_type_mapping =  QuickSearch::Engine::APP_CONFIG['page_type_mapping'].present? ? QuickSearch::Engine::APP_CONFIG['page_type_mapping'] : {}
-      page_type_mapping.transform_keys{ |key| key.downcase.gsub("_", " ") }
+      page_type_mapping = QuickSearch::Engine::APP_CONFIG['page_type_mapping'].present? ? QuickSearch::Engine::APP_CONFIG['page_type_mapping'] : {}
+      page_type_mapping = clean_config_keys(page_type_mapping)
       results.flatten.each do |result|
         searcher = result.webnode_type ? result.webnode_type.gsub('-', ' ') : map_searcher_name()
         searcher = searcher.downcase
@@ -107,17 +111,16 @@ module QuickSearch
     def http_request_queries
       query = @q.dup
       queries = {}
-      searcher = map_searcher_name().downcase.gsub(" ", "_")
+      searcher = map_searcher_name()
       stop_words = QuickSearch::Engine::APP_CONFIG['stop_words']
       exceptions = QuickSearch::Engine::APP_CONFIG['stop_words_exceptions']
       if exceptions
+        exceptions = clean_config_keys(exceptions)
         if exceptions[searcher]
           stop_words = stop_words.reject {|word| exceptions[searcher].include?(word) }
         end
       end
-
       query = filter_query(query, stop_words)
-
       queries['not_escaped'] = query
       queries['uri_escaped'] = CGI.escape(query.to_str)
       queries['mysql_escaped'] = Mysql2::Client.escape(query)
