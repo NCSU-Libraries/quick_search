@@ -34,16 +34,20 @@ module QuickSearch
       titlewords
     end
 
+    def map_searcher_name
+      return self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+    end
+
     def good_bets
       good_bets = []
       page_type_mapping =  QuickSearch::Engine::APP_CONFIG['page_type_mapping'].present? ? QuickSearch::Engine::APP_CONFIG['page_type_mapping'] : {}
-      page_type_mapping.transform_keys{ |key| key.downcase }
+      page_type_mapping.transform_keys{ |key| key.downcase.gsub("_", " ") }
       results.flatten.each do |result|
-        searcher = result.webnode_type ? result.webnode_type.gsub('-', ' ') : self.class.name.gsub('QuickSearch::', '').gsub('Searcher', '').gsub(/([A-Z])/, ' \1').strip()
+        searcher = result.webnode_type ? result.webnode_type.gsub('-', ' ') : map_searcher_name()
         searcher = searcher.downcase
         page_type = page_type_mapping[searcher].present? ? page_type_mapping[searcher] : result.page_type.present? ? result.page_type : searcher.titleize
         clean_title = clean_title_array(result.title, result.keywords).join(" ") + ' ' + page_type.downcase
-        match_words = clean_title_array(@q).map{|word|clean_title.include? word}
+        match_words = clean_title_array(http_request_queries['not_escaped']).map{|word|clean_title.include? word}
         if match_words.count(true)/match_words.length.to_f > 0.74
           good_bet_result = result.to_h
           good_bet_result[:searcher] = searcher.gsub(' ', '-').downcase
@@ -103,8 +107,17 @@ module QuickSearch
     def http_request_queries
       query = @q.dup
       queries = {}
+      searcher = map_searcher_name().downcase.gsub(" ", "_")
+      stop_words = QuickSearch::Engine::APP_CONFIG['stop_words']
+      exceptions = QuickSearch::Engine::APP_CONFIG['stop_word_exceptions']
+      if exceptions
+        if exceptions[searcher]
+          stop_words = stop_words.reject {|word| exceptions[searcher].include?(word) }
+        end
+      end
 
-      query = filter_query(query)
+      query = filter_query(query, stop_words)
+
 
       queries['not_escaped'] = query
       queries['uri_escaped'] = CGI.escape(query.to_str)

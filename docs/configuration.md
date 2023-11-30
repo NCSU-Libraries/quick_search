@@ -65,3 +65,12 @@ the quick_search/config/searchers/ directory called [searcher_name_here]_config.
 So if your searcher is called catalog, it would be catalog_config.yml.
 
 You can also [implement your own searcher](customizing_searchers.md) - this usually involves a minimal amount of code, depending on how complex you want it to be.
+
+## Including Stop Words
+
+If there are words you have users search often that are skewing results you can add a stop words field to the config. For example, many of NC State's users will add `ncsu` to a search like they are using google. For many of our bentos we don't want `ncsu` searched. However we feel that `ncsu` is a valid query for our catalog and summon searchers. We can add exceptions. In order to set this up a a stop_words list to your “config/quick_search_config.yml” file. You can also add exceptions in the stop_words_exceptions field. The example below adds the stop_words 'ncsu' and 'test' but tells the application to not remove the word 'ncsu' or 'test' for the catalog and to not remove the word 'ncsu' for summon.
+
+```
+stop_words: ['ncsu', 'test']
+stop_words_exceptions: {'catalog': ['ncsu', 'test'], 'summon': ['ncsu']}
+```
