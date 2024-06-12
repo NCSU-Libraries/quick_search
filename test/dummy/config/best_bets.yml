@@ -84,3 +84,9 @@ best_bets:
     keywords:
     - pubmed
     - pub med
+  testbestbetdash:
+    title: Test Best Bet Entry with Dash in Keyword
+    description: This is a test Best Bet entry to test keywords containing a dash
+    url: http://example.org
+    keywords:
+    - 123-456
