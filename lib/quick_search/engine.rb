@@ -15,7 +15,8 @@ module QuickSearch
     initializer :quick_search, :after => :add_view_paths do
       config_file = File.join(Rails.root, "/config/quick_search_config.yml")
       if File.exist?(config_file)
-        QuickSearch::Engine::APP_CONFIG = YAML.load(ERB.new(File.read(config_file)).result)[Rails.env]
+        qs_config_file = ERB.new(File.read(config_file)).result
+        QuickSearch::Engine::APP_CONFIG = YAML.load(qs_config_file, permitted_classes: [Regexp], aliases: true)[Rails.env]
         ActiveSupport.on_load(:action_controller) do
           # get theme / core engine classes
           theme_engine_class = "#{QuickSearch::Engine::APP_CONFIG['theme'].classify}::Engine".constantize
