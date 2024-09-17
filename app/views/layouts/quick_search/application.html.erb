@@ -9,6 +9,7 @@
     <%= stylesheet_link_tag 'application' %>
 
     <!-- js -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <%= javascript_include_tag 'application' %>
     <%= render '/layouts/quick_search/head' %>
     <%= render '/layouts/quick_search/google_analytics' %>
@@ -34,8 +35,8 @@
 <%= render '/layouts/quick_search/footer' %>
 </div>
 </div>
-<script type="text/javascript">$(function() { $('body').hide().show(); });
-window.I18n = <%= I18n.backend.send(:translations).to_json.html_safe %>
+<script type="text/javascript">
+    window.I18n = <%= I18n.backend.send(:translations).to_json.html_safe %>
 </script>
 </body>
 </html>
