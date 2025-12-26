@@ -18,6 +18,8 @@ defaults: &defaults
   # Google Analytics client ID
   # Needed for server-side GA calls (if used). Should be a random UUID
   google_analytics_client_id: "a_random_uuid"
+  # Google Analytics anonymizeIp
+  google_analytics_anonymize_ip: false
 
   # Username/password for QuickSearch stats view
   user: "stats"

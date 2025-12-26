@@ -29,6 +29,7 @@ defaults: &defaults
   http_timeout: 1.5
   xhr_http_timeout: 15
 # google_analytics_tracking_id: ""
+# google_analytics_anonymize_ip: false
   user: "stats"
   password: "stats"
 
