@@ -32,17 +32,23 @@ $(document).on('click', '.result-types a', function () {
 });
 
 $(document).ready(function () {
-    $('.read-more').click(function (e) {
+    $('.read-more, .read-less').on('click', function(e) {
         e.preventDefault();
-        e.stopImmediatePropagation();
-        $(e.target).parent().hide();
-        $(e.target).parent().siblings('.description-full').show();
-    });
-    $('.read-less').click(function (e) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        $(e.target).parent().hide();
-        $(e.target).parent().siblings('.description-truncated').show();
-    });
+        const container = $(this).closest('.description-container');
+        const trunc = container.find('.description-truncated');
+        const full = container.find('.description-full');
+        
+        // Toggle Visibility
+        trunc.toggle();
+        full.toggle();
 
+        // Handle Focus for Keyboard Users
+        if (full.is(':visible')) {
+            full.find('.read-less').focus(); // Move focus to the "Read less" button
+        } else {
+            trunc.find('.read-more').focus(); // Move focus back to "Read more"
+        }
+    });
 });
+
+$
