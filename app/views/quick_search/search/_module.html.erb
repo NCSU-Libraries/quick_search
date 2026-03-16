@@ -22,7 +22,7 @@
             <h2 class='show-for-small-only'><%= link_to raw(module_display_name), searcher.loaded_link_mobile, { :class => 'result-set-heading'}  %></h2>
         <% end %>
         <ol>
-            <%= render partial: '/quick_search/search/result', collection: searcher.results %>
+            <%= render partial: '/quick_search/search/result', collection: searcher.results.first(searcher.per_page) %>
         </ol>
         <p class="see-all-results">
             <% unless defined? searcher.loaded_link_mobile %>
