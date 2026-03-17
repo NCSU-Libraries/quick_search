@@ -8,15 +8,21 @@
     <!-- css -->
     <%= stylesheet_link_tag 'application' %>
 
-    <!-- js -->
-    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
-    <%= javascript_include_tag 'application' %>
+    <!-- Load JavaScript libraries from CDN -->
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.14.2/jquery-ui.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.2/themes/base/jquery-ui.min.css">
+    
+    <!-- D3 and Lodash for charts/graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    
+    <!-- Turbo for navigation -->
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.min.js" type="module"></script>
+    
+    <%= yield :head %>
     <%= render '/layouts/quick_search/head' %>
     <%= render '/layouts/quick_search/google_analytics' %>
-
-    <!-- datepicker (temp) -->
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.2/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.14.2/jquery-ui.min.js"></script>
 </head>
 <body class="<%= body_class %>" data-quicksearch-ga-query="<%= strip_tags(@log_query) %>">
 <div class="off-canvas-wrap">

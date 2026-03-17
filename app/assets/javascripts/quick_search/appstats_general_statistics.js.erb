@@ -3,7 +3,7 @@
 (function() {
     var Globals = {};
 
-    $(document).on("turbolinks:load", function() {
+    $(document).on("turbo:load", function() {
         if ($("#graph_general_statistics").length) {
             var from = $("#from").datepicker("getDate");
             var to = new Date($("#to").datepicker("getDate").getTime() + 1000*60*60*24);

@@ -3,7 +3,7 @@
 (function() {
     var Globals = {};
 
-    $(document).on("turbolinks:load", function() {
+    $(document).on("turbo:load", function() {
         if ($("#graph_best_bets").length) {
             d3.select("#bbIconContainer").append("i")
                 .attr("class", "fa fa-spinner fa-spin fa-5x fa-fw big-icon")

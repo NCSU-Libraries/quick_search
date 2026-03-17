@@ -43,10 +43,10 @@ module QuickSearch
     # Best Bets. The reason for this dual approach is that it removes Solr as an absolute requirement for QuickSearch.
 
     initializer :best_bets, :after => :quick_search do
-      if defined? QuickSearch::Engine::APP_CONFIG and QuickSearch::Engine::APP_CONFIG['best_bets']['solr_url'].empty?
+      if defined?(QuickSearch::Engine::APP_CONFIG) && QuickSearch::Engine::APP_CONFIG && QuickSearch::Engine::APP_CONFIG.dig('best_bets', 'solr_url')&.empty?
         best_bets_file = File.join(Rails.root, "/config/best_bets.yml")
         if File.exist?(best_bets_file)
-          QuickSearch::Engine::BEST_BETS = YAML.load_file(best_bets_file)['best_bets']
+          QuickSearch::Engine::BEST_BETS = YAML.load_file(best_bets_file, aliases: true)['best_bets']
           QuickSearch::Engine::BEST_BETS_INDEX = {}
           QuickSearch::Engine::BEST_BETS.each do |best_bet_name, best_bet|
             QuickSearch::Engine::BEST_BETS[best_bet_name]['id'] = best_bet_name

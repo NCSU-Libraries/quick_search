@@ -9,6 +9,7 @@ module QuickSearch
     include QuickSearch::SearcherConfig
     include QuickSearch::SearchHelper
 
+    require 'benchmark'
     require 'benchmark_logger'
 
     before_action :doi_trap, :log_query
@@ -255,7 +256,7 @@ module QuickSearch
 
     def benchmark(message)
       result = nil
-      ms = Benchmark.ms { result = yield }
+      ms = Benchmark.realtime { result = yield } * 1000
       BenchmarkLogger.info '%s (%.1fms)' % [ message, ms ]
       result
     end

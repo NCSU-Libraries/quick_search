@@ -1,3 +1,19 @@
+<% content_for :head do %>
+  <script>
+    window.QuickSearchRoutes = {
+      data_best_bets: '<%= QuickSearch::Engine.routes.url_helpers.data_best_bets_path %>',
+      data_best_bets_details: '<%= QuickSearch::Engine.routes.url_helpers.data_best_bets_details_path %>',
+      data_spelling_suggestions: '<%= QuickSearch::Engine.routes.url_helpers.data_spelling_suggestions_path %>',
+      data_spelling_details: '<%= QuickSearch::Engine.routes.url_helpers.data_spelling_details_path %>'
+    };
+  </script>
+  <script src="<%= asset_path('appstats/appstats.js') %>" data-turbo-track="reload"></script>
+  <% if @page_title=='best-bets-regular' %>
+    <script src="<%= asset_path('appstats/appstats_best_bets.js') %>" data-turbo-track="reload"></script>
+  <% elsif @page_title=='spelling-suggestion' %>
+    <script src="<%= asset_path('appstats/appstats_spelling_suggestions.js') %>" data-turbo-track="reload"></script>
+  <% end %>
+<% end %>
 <% title("#{@page_title} | ") %>
 <%= render partial: 'datatables' %>
 <div class="row">

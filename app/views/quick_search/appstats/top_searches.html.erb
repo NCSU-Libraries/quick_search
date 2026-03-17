@@ -1,3 +1,12 @@
+<% content_for :head do %>
+  <script>
+    window.QuickSearchRoutes = {
+      data_top_searches: '<%= QuickSearch::Engine.routes.url_helpers.data_top_searches_path %>'
+    };
+  </script>
+  <script src="<%= asset_path('appstats/appstats.js') %>" data-turbo-track="reload"></script>
+  <script src="<%= asset_path('appstats/appstats_top_searches.js') %>" data-turbo-track="reload"></script>
+<% end %>
 <% title("#{@page_title} | ") %>
 <%= render partial: 'datatables' %>
 <div class="row">

@@ -1,3 +1,14 @@
+<% content_for :head do %>
+  <script>
+    // Define routes before loading scripts that use them
+    window.QuickSearchRoutes = {
+      dataGeneralStatistics: '<%= QuickSearch::Engine.routes.url_helpers.data_general_statistics_path %>',
+      dataGeneralTable: '<%= QuickSearch::Engine.routes.url_helpers.data_general_table_path %>'
+    };
+  </script>
+  <script src="<%= asset_path('appstats/appstats.js') %>" data-turbo-track="reload"></script>
+  <script src="<%= asset_path('appstats/appstats_general_statistics.js') %>" data-turbo-track="reload"></script>
+<% end %>
 <% title("#{@page_title} | ") %>
 <%= render partial: 'datatables' %>
 <div class="row">
