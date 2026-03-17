@@ -1,9 +1,8 @@
-<%= stylesheet_link_tag('//cdn.datatables.net/1.10.0/css/jquery.dataTables.css') %>
-<%= stylesheet_link_tag('//cdn.datatables.net/plug-ins/28e7751dbec/integration/foundation/dataTables.foundation.css') %>
-<%= javascript_include_tag('//cdn.datatables.net/1.10.0/js/jquery.dataTables.js') %>
-<%= javascript_include_tag('//cdn.datatables.net/plug-ins/28e7751dbec/integration/foundation/dataTables.foundation.js') %>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.foundation.min.css">
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.foundation.min.js"></script>
 <script>
-    $(document).ready (function() {
+    $(document).on("turbo:load", function() {
         $('.datatable').dataTable({
           "paging":   false,
           "filter": false

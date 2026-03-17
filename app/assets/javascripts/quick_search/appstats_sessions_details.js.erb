@@ -5,7 +5,7 @@
     Globals["#graph_sessions_location"] = {};
     Globals["#graph_sessions_device"] = {};
 
-    $(document).on("turbolinks:load", function() {
+    $(document).on("turbo:load", function() {
         if ($("#graph_sessions_location").length) {
             d3.select("#locationIconContainer").append("i")
                 .attr("class", "fa fa-spinner fa-spin fa-5x fa-fw big-icon")
