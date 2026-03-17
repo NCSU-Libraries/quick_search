@@ -1,9 +1,5 @@
 # QuickSearch
 
-> Note: This code has recently been converted to a Rails Gem Engine. It is encouraged that you use this version, but if you are
-> looking for the original release of QuickSearch as a standalone Rails project, it can be found here:
-> https://github.com/NCSU-Libraries/quick_search/tree/pre-gem
-
 [![Build Status](https://travis-ci.org/NCSU-Libraries/quick_search.svg?branch=master)](https://travis-ci.org/NCSU-Libraries/quick_search)
 [![Gem Version](https://badge.fury.io/rb/quick_search-core.svg)](https://badge.fury.io/rb/quick_search-core)
 
@@ -37,8 +33,8 @@ development.
 
 #### Prerequisites
 
-- Rails 5.0
-- Ruby 2.2.2+ or 2.3.x
+- Rails 7.1+
+- Ruby 3.3+
 - MySQL development headers (mysql-devel package on CentOS, libmysqlclient-dev on Ubuntu)
 - qtwebkit development headers (qtwebkit-devel package on CentOS, libqtwebkit-dev on Ubuntu)
 
@@ -128,13 +124,6 @@ To set up the testing database, run:
 Then, to run the tests:
 
     bundle exec rake test
-
-## TODO
-
-There are still some TODOs left in terms of extracting this code from
-our production codebase:
-
-- Improve documentation
 
 ## Bugs, Feature Requests, etc.
 
