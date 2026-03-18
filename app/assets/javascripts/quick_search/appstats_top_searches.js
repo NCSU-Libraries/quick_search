@@ -1,4 +1,3 @@
-<% url_helper = QuickSearch::Engine.routes.url_helpers %>
 
 (function() {
     var Globals = {};
@@ -16,7 +15,7 @@
                 $.ajax({
                     type: "GET",
                     contentType: "application/json; charset=utf-8",
-                    url: '<%= url_helper.data_top_searches_path %>',
+                    url: window.QuickSearchRoutes.data_top_searches,
                     dataType: "json",
                     data: {
                         "start_date": from,
@@ -37,7 +36,7 @@
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
-                url: '<%= url_helper.data_top_searches_path %>',
+                url: window.QuickSearchRoutes.data_top_searches,
                 dataType: "json",
                 success: function(searchDataSet) {
                     d3.select("#tsIcon").transition().duration(250)

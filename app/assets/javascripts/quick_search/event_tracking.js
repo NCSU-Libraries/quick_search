@@ -1,4 +1,3 @@
-
 var quickSearchEventTracking = (function () {
 
     // Configs
@@ -13,8 +12,6 @@ var quickSearchEventTracking = (function () {
         labelDataAttribute: 'quicksearch-ga-label',
         logQueryDataAttribute: 'quicksearch-ga-query'
     }
-
-    <% url_helper = QuickSearch::Engine.routes.url_helpers %>
 
     // Public Methods
 
@@ -115,20 +112,22 @@ var quickSearchEventTracking = (function () {
     }
 
     function sendEventData (eventValues, link) {
-        <% if Rails.env == 'development' %>
+        var railsEnv = window.QuickSearchConfig ? window.QuickSearchConfig.railsEnv : 'production';
+        
+        if (railsEnv === 'development') {
             console.log('click_tracking', [eventValues.category, eventValues.action, eventValues.label]);
             $.when(logEventToDatabase(eventValues)).then(function () {
                 if (link !== '') {
                     //document.location.href = link;
                 }
             });
-        <% elsif Rails.env == 'production' or Rails.env == 'staging' %>
+        } else if (railsEnv === 'production' || railsEnv === 'staging') {
             $.when(logEventToDatabase(eventValues)).then(function () {
                 sendDataToGoogleAnalytics(eventValues, link)
             });
-        <% else %>
+        } else {
             appendTestingData(eventValues);
-        <% end %>
+        }
     }
 
     function appendTestingData (eventValues) {
@@ -164,7 +163,7 @@ var quickSearchEventTracking = (function () {
 
     function logEventToDatabase(eventValues) {
 
-        url = '<%= url_helper.log_event_path %>';
+        url = window.QuickSearchRoutes.logEvent;
 
         return $.ajax({
             url: url,
@@ -199,12 +198,13 @@ var quickSearchEventTracking = (function () {
         var pathname = window.location.pathname;
 
         // Get the pathname relative to the application root
-        return pathname.replace("<%= ActionController::Base.relative_url_root || '' %>", "");
+        var relativeUrlRoot = window.QuickSearchConfig ? (window.QuickSearchConfig.relativeUrlRoot || '') : '';
+        return pathname.replace(relativeUrlRoot, "");
     }
 
     function logSearchToDatabase(searchValues) {
         console.log(searchValues);
-        url = '<%= url_helper.log_search_path %>';
+        url = window.QuickSearchRoutes.logSearch;
 
         return $.ajax({
             url: url,
@@ -236,5 +236,3 @@ $( document ).ready(function() {
         quickSearchEventTracking.listenForServesOnPageChange();
     }
 });
-
-

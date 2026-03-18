@@ -1,30 +1,55 @@
-<% url_helper = QuickSearch::Engine.routes.url_helpers %>
 
 (function() {
     var Globals = {};
+    Globals["#graph_sessions_location"] = {};
+    Globals["#graph_sessions_device"] = {};
 
     $(document).on("turbo:load", function() {
-        if ($("#graph_sessions_overview").length) {
-            d3.select("#sessIconContainer").append("i")
+        if ($("#graph_sessions_location").length) {
+            d3.select("#locationIconContainer").append("i")
                 .attr("class", "fa fa-spinner fa-spin fa-5x fa-fw big-icon")
-                .attr("id", "sessIcon");
+                .attr("id", "locationIcon");
+            d3.select("#deviceIconContainer").append("i")
+                .attr("class", "fa fa-spinner fa-spin fa-5x fa-fw big-icon")
+                .attr("id", "deviceIcon");
             // Redraw graph if the date range is changed
             document.getElementById("dateButton").addEventListener("click", function() {
                 var from = $("#from").datepicker("getDate");
                 var to = new Date($("#to").datepicker("getDate").getTime() + 1000*60*60*24);
                 document.getElementById("numDays").innerHTML = "" + parseInt((to-from)/(1000*60*60*24));
+                var usePercLoc = Globals["#graph_sessions_location"].UsePerc
                 $.ajax({
                     type: "GET",
                     contentType: "application/json; charset=utf-8",
-                    url: '<%= url_helper.data_sessions_overview_path %>',
+                    url: window.QuickSearchRoutes.data_sessions_location,
                     dataType: "json",
                     data: {
                         "start_date": from,
-                        "end_date": to
+                        "end_date": to,
+                        "use_perc": usePercLoc
                     },
                     success: function(sessionsDataSet) {
                         var dataMain = _.cloneDeep(sessionsDataSet);
-                        draw_graph_sessions_overview(dataMain, false, true);
+                        draw_graph_sessions_details("#graph_sessions_location", dataMain, false, true, usePercLoc);
+                    },
+                    error: function(result) {
+                        error();
+                    }
+                });
+                var usePercDev = Globals["#graph_sessions_device"].UsePerc;
+                $.ajax({
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    url: window.QuickSearchRoutes.data_sessions_device,
+                    dataType: "json",
+                    data: {
+                        "start_date": from,
+                        "end_date": to,
+                        "use_perc": usePercDev
+                    },
+                    success: function(sessionsDataSet) {
+                        var dataMain = _.cloneDeep(sessionsDataSet);
+                        draw_graph_sessions_details("#graph_sessions_device", dataMain, false, true, usePercDev);
                     },
                     error: function(result) {
                         error();
@@ -34,21 +59,39 @@
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
-                url: '<%= url_helper.data_sessions_overview_path %>',
+                url: window.QuickSearchRoutes.data_sessions_location,
                 dataType: "json",
                 success: function(sessionsDataSet) {
-                    d3.select("#sessIcon").transition().duration(250)
+                    d3.select("#locationIcon").transition().duration(250)
                         .style("opacity", .000001)
                         .remove();
                     var dataMain = _.cloneDeep(sessionsDataSet);
+                    draw_graph_sessions_details("#graph_sessions_location", dataMain, false, false, false);
 
-                    draw_graph_sessions_overview(dataMain, false, false);
+                    if ($("#graph_sessions_location").length) {
+                        document.getElementsByClassName("session_location_filter")[0].addEventListener("click", process_filters);
+                        document.getElementsByClassName("session_location_filter")[1].addEventListener("click", process_filters);
+                    }
+                },
+                error: function(result) {
+                    error();
+                }
+            });
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: window.QuickSearchRoutes.data_sessions_device,
+                dataType: "json",
+                success: function(sessionsDataSet) {
+                    d3.select("#deviceIcon").transition().duration(250)
+                        .style("opacity", .000001)
+                        .remove();
+                    var dataMain = _.cloneDeep(sessionsDataSet);
+                    draw_graph_sessions_details("#graph_sessions_device", dataMain, false, false, false);
 
-                    if ($("#graph_sessions_overview").length) {
-                        document.getElementById("onCampus").addEventListener("click", process_filters);
-                        document.getElementById("offCampus").addEventListener("click", process_filters);
-                        document.getElementById("isMobile").addEventListener("click", process_filters);
-                        document.getElementById("notMobile").addEventListener("click", process_filters);
+                    if ($("#graph_sessions_location").length) {
+                        document.getElementsByClassName("session_device_filter")[0].addEventListener("click", process_filters);
+                        document.getElementsByClassName("session_device_filter")[1].addEventListener("click", process_filters);
                     }
                 },
                 error: function(result) {
@@ -62,8 +105,8 @@
         console.log("Error retrieving data");
     }
 
-    function draw_graph_sessions_overview(dataShared, transitioning, dateUpdated) {
-        if ($("#graph_sessions_overview").length) {
+    function draw_graph_sessions_details(id, dataShared, transitioning, dateUpdated, usePerc) {
+        if ($("#graph_sessions_location").length) {
             // General Variables
             var svg;            // SVG to contain graph
             var dataInt;        // Internal reference to graph dataset
@@ -75,8 +118,6 @@
             var height2;        // Drawable height of context (not including margins)
             // Date Variables
             var parseDate;      // Function to parse dates into proper format
-            var dateRange;      // Range of dates in data set
-            var numDays;        // Number of days in range
             // Scale Variables
             var x;              // X-scale for focus graph 
             var x2;             // X-scale for context graph
@@ -89,9 +130,14 @@
             var xAxis;          // X-axis for focus graph
             var xAxis2;         // X-axis for context graph
             var yAxis;          // Y-axis for focus graph
+            var yAxisFormat;    // Conditional format for yAxis, depending on if displaying percentages or raw values
             // Area Variables
-            var area;           // Area for focus graph
-            var area2;          // Area for context graph
+            var area;           // Bottom area for focus graph
+            var areaTop;        // Top area for focus graph
+            var area2;          // Bottom area for context graph
+            var area2Top;       // Top area for context graph
+            // Additional Data Variables
+            var legendData;     // Data for legend construction (class and text fields)
             // Selection Variables
             var gAllSelection;          // Selection for overarching group
             var gAll;                   // Group containing all elements
@@ -100,23 +146,31 @@
             var contextSelection;       // Selection for context group
             var context;                // Group containing all context elements
             var clipSelection;          // Selection for clip path
+            var legendGroupSelection;   // Selection for legend group
+            var legendGroup;            // Group containing all legnend information
+            var legendRectSelection;    // Selection for legend rectangles
+            var legendTextSelection;    // Selection for legend text
             var xAxisSelection;         // Selection for xAxis
             var yAxisSelection;         // Selection for yAxis
             var titleSelection;         // Selection for title
-            var focusPathSelection;     // Selection for focus path (area)
+            var focusPathSelection;     // Selection for bottom focus path (area)
+            var focusPathTopSelection;  // Selection for top focus path (area)
             var xAxis2Selection;        // Selection for xAxis2
-            var contextPathSelection;   // Selection for context path (area)
+            var contextPathSelection;   // Selection for bottom context path (area)
+            var contextPathTopSelection;// Selection for top context path (area)
             var brushSelection;         // Selection for brush
             var zoomSelection;          // Selection for zoom
+            // Update global percent flag
+            Globals[id].UsePerc = usePerc;
 
             // Initialize General Variables ///////////////////////////////////////////////////////////
-            svg = d3.select("#graph_sessions_overview");
+            svg = d3.select(id);
 
             dataInt = dataShared;
 
             // Initialize Dimension Variables /////////////////////////////////////////////////////////
             margin = {
-                top: 40,
+                top: 50,
                 right: 20,
                 bottom: 110,
                 left: 40
@@ -148,30 +202,30 @@
             x2.domain(d3.extent(dataInt, function(d) {
                 return d.date;
             }));
-            if (_.isEqual(undefined, Globals.Domain)) {
+            if (_.isEqual(undefined, Globals[id].Domain)) {
                 x.domain(d3.extent(dataInt, function(d) {
                     return d.date;
                 }));
             } else {
                 var lb, ub;
-                if (Globals.Domain[0] < x2.domain()[0]) {
+                if (Globals[id].Domain[0] < x2.domain()[0]) {
                     lb = x2.domain()[0];
                 } else {
-                    lb = Globals.Domain[0];
+                    lb = Globals[id].Domain[0];
                 }
-                if (Globals.Domain[1] > x2.domain()[1]) {
+                if (Globals[id].Domain[1] > x2.domain()[1]) {
                     ub = x2.domain()[1];
                 } else {
-                    ub = Globals.Domain[1];
+                    ub = Globals[id].Domain[1];
                 }
-                if(Globals.Domain[0]>x2.domain()[1] || Globals.Domain[1]<x2.domain()[0]) {
+                if(Globals[id].Domain[0]>x2.domain()[1] || Globals[id].Domain[1]<x2.domain()[0]) {
                     lb = x2.domain()[0];
                     ub = x2.domain()[1];
                 }
                 x.domain([lb, ub]);
             }
             y.domain([0, d3.max(dataInt, function(d) {
-                return d.count;
+                return d.on + d.off;
             })]);
             y2.domain(y.domain());
             
@@ -200,6 +254,9 @@
             xAxis = d3.axisBottom(x);
             xAxis2 = d3.axisBottom(x2);
             yAxis = d3.axisLeft(y);
+            yAxisFormat = usePerc ? d3.format(".0%") : null;
+
+            yAxis.tickFormat(yAxisFormat);
 
             // Initialize Area Variables //////////////////////////////////////////////////////////////
             area = d3.area()
@@ -209,7 +266,19 @@
                 })
                 .y0(height)
                 .y1(function(d) {
-                    return y(d.count);
+                    return y(d.on);
+                });
+
+            areaTop = d3.area()
+                .curve(d3.curveMonotoneX)
+                .x(function(d) {
+                    return x(d.date);
+                })
+                .y0(function(d) {
+                    return y(d.on)+5;
+                })
+                .y1(function(d) {
+                    return y(d.on + d.off);
                 });
 
             area2 = d3.area()
@@ -219,8 +288,24 @@
                 })
                 .y0(height2)
                 .y1(function(d) {
-                    return y2(d.count);
+                    return y2(d.on);
                 });
+
+            area2Top = d3.area()
+                .curve(d3.curveMonotoneX)
+                .x(function(d) {
+                    return x2(d.date);
+                })
+                .y0(function(d) {
+                    return y2(d.on)+1;
+                })
+                .y1(function(d) {
+                    return y2(d.on + d.off);
+                });
+
+            // Initialize Additional Data Variables ///////////////////////////////////////////////////
+            legendData = [{areaClass: "legendRect",         locationText: "On Campus",  deviceText: "On Mobile Device"},
+                          {areaClass: "lightLegendRect",    locationText: "Off Campus", deviceText: "On Non-Mobile Device"}];
 
             // Make overarching group /////////////////////////////////////////////////////////////////
             gAllSelection = svg.selectAll(".gAll").data([dataInt]);
@@ -270,6 +355,58 @@
                 .attr("width", width)
                 .attr("height", height);
 
+            // Make legendGroup
+            legendGroupSelection = gAll.selectAll(".legend").data([dataInt]);
+
+            legendGroupSelection.exit().transition().duration(500)
+                .style("opacity", .000001)
+                .remove();
+            legendGroupSelection.enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", "translate(" + margin.left + "," + 0 + ")");
+
+            legendGroup = svg.select(".legend");
+
+            // Make legendRects and legendText
+            legendRectSelection = legendGroup.selectAll(".legendRect, .lightLegendRect").data(legendData);
+
+            legendRectSelection.exit().transition().duration(500)
+                .style("opacity", .000001)
+                .remove();
+            legendRectSelection.enter().append("rect")
+                .style("opacity", .000001)
+                .attr("class", function(d, i) {
+                    return d.areaClass;
+                })
+                .attr("width", width/32)
+                .attr("height", width/32)
+                .attr("transform", function (d,i) { 
+                    return "translate(" + (width/5 + i*2*width/5) + "," + 5 + ")";
+                })
+                .transition().duration(500)
+                .style("opacity", 1);
+
+            var legendTextSelection = legendGroup.selectAll(".legendText").data(legendData);
+
+            legendTextSelection.exit().transition().duration(500)
+                .style("opacity", .000001)
+                .remove();
+            legendTextSelection.enter().append("text")
+                .style("opacity", .000001)
+                .attr("class", "legendText")
+                .text(function(d) {
+                    if (id=="#graph_sessions_location") {
+                        return d.locationText;
+                    } else {
+                        return d.deviceText;
+                    }
+                })
+                .attr("transform", function(d, i) {
+                    return "translate(" + (width/5 + i*2*width/5 + width/32 + 5) + "," + (5 + 3*width/128) + ")";
+                })
+                .transition().duration(500)
+                .style("opacity", 1);
+
             // Make focus x axis
             xAxisSelection = focus.selectAll(".xAxis").data([dataInt]);
 
@@ -315,7 +452,21 @@
                 .datum(dataInt)
                 .attr("class", "area")
                 .transition().duration(500)
-                .style("opacity", 1);;
+                .style("opacity", 1);
+
+            focusPathTopSelection = focus.selectAll(".areaLight").data([dataInt]);
+
+            focusPathTopSelection.datum(dataInt).transition().duration(750)
+                .attr("d", areaTop);
+            focusPathTopSelection.exit().transition().duration(500)
+                .style("opacity", .000001)
+                .remove();
+            focusPathTopSelection.enter().append("path")
+                .style("opacity", .000001)
+                .datum(dataInt)
+                .attr("class", "areaLight")
+                .transition().duration(500)
+                .style("opacity", 1);
 
             // Make context x axis
             xAxis2Selection = context.selectAll(".xAxis").data([dataInt]);
@@ -346,6 +497,21 @@
                 .datum(dataInt)
                 .attr("class", "area")
                 .attr("d", area2)
+                .transition().duration(500)
+                .style("opacity", 1);
+
+            contextPathTopSelection = context.selectAll(".areaLight").data([dataInt]);
+
+            contextPathTopSelection.datum(dataInt).transition().duration(750)
+                .attr("d", area2Top);
+            contextPathTopSelection.exit().transition().duration(500)
+                .style("opacity", .000001)
+                .remove();
+            contextPathTopSelection.enter().append("path")
+                .style("opacity", .000001)
+                .datum(dataInt)
+                .attr("class", "areaLight")
+                .attr("d", area2Top)
                 .transition().duration(500)
                 .style("opacity", 1);
 
@@ -380,17 +546,17 @@
             // Before updating domains, move brush to domain it was previously set to
             if (dateUpdated) {
                 var lb, ub;
-                if (x2(Globals.Domain[0]) < 0) {
+                if (x2(Globals[id].Domain[0]) < 0) {
                     lb = 0;
                 } else {
-                    lb = x2(Globals.Domain[0]);
+                    lb = x2(Globals[id].Domain[0]);
                 }
-                if (x2(Globals.Domain[1]) > width) {
+                if (x2(Globals[id].Domain[1]) > width) {
                     ub = width;
                 } else {
-                    ub = x2(Globals.Domain[1]);
+                    ub = x2(Globals[id].Domain[1]);
                 }
-                if(Globals.Domain[0]>x2.domain()[1] || Globals.Domain[1]<x2.domain()[0]) {
+                if(Globals[id].Domain[0]>x2.domain()[1] || Globals[id].Domain[1]<x2.domain()[0]) {
                     lb = 0;
                     ub = width;
                 }
@@ -414,13 +580,14 @@
                 .call(zoom);
 
 
-            function brushed() {
+            function brushed(event) {
                 if (!transitioning) {
-                    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return;
-                    var s = d3.event.selection || x2.range();
+                    if (event.sourceEvent && event.sourceEvent.type === "zoom") return;
+                    var s = event.selection || x2.range();
                     x.domain(s.map(x2.invert, x2));
-                    Globals.Domain = x.domain();
+                    Globals[id].Domain = x.domain();
                     focus.select(".area").attr("d", area);
+                    focus.select(".areaLight").attr("d", areaTop);
                     focus.select(".xAxis").call(xAxis);
                     svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
                         .scale(width / (s[1] - s[0]))
@@ -428,13 +595,14 @@
                 }
             }
 
-            function zoomed() {
+            function zoomed(event) {
                 if (!transitioning) {
-                    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return;
-                    var t = d3.event.transform;
+                    if (event.sourceEvent && event.sourceEvent.type === "brush") return;
+                    var t = event.transform;
                     x.domain(t.rescaleX(x2).domain());
-                    Globals.Domain = x.domain();
+                    Globals[id].Domain = x.domain();
                     focus.select(".area").attr("d", area);
+                    focus.select(".areaLight").attr("d", areaTop);
                     focus.select(".xAxis").call(xAxis);
                     context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
                 }
@@ -443,39 +611,49 @@
     }
 
     function process_filters() {
-        var onCampus = document.getElementById("onCampus");
-        var offCampus = document.getElementById("offCampus");
-        var isMobile = document.getElementById("isMobile");
-        var notMobile = document.getElementById("notMobile");
-
-        if(this==onCampus && offCampus.checked) { offCampus.checked = false; }
-        if(this==offCampus && onCampus.checked) { onCampus.checked = false; }
-        if(this==isMobile && notMobile.checked) { notMobile.checked = false; }
-        if(this==notMobile && isMobile.checked) { isMobile.checked = false; }
-
+        var loc = document.querySelector('input[name = "loc"]:checked').value;
+        var dev = document.querySelector('input[name = "dev"]:checked').value;
         var from = $("#from").datepicker("getDate");
         var to = new Date($("#to").datepicker("getDate").getTime() + 1000*60*60*24);
+
+        var usePercLoc = _.isEqual(loc,"perc") ? true : false;
         $.ajax({
             type: "GET",
             contentType: "application/json; charset=utf-8",
-            url: '<%= url_helper.data_sessions_overview_path %>',
+            url: window.QuickSearchRoutes.data_sessions_location,
             dataType: "json",
             data: {
                 "start_date": from,
                 "end_date": to,
-                "onCampus": onCampus.checked?1:0,
-                "offCampus": offCampus.checked?1:0,
-                "isMobile": isMobile.checked?1:0,
-                "notMobile": notMobile.checked?1:0
+                "use_perc": usePercLoc
             },
             success: function(sessionsDataSet) {
                 var dataMain = _.cloneDeep(sessionsDataSet);
-                draw_graph_sessions_overview(dataMain, true, false);
+                draw_graph_sessions_details("#graph_sessions_location", dataMain, true, false, usePercLoc);
+            },
+            error: function(result) {
+                error();
+            }
+        });
+
+        var usePercDev = _.isEqual(dev,"perc") ? true : false;
+        $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            url: window.QuickSearchRoutes.data_sessions_device,
+            dataType: "json",
+            data: {
+                "start_date": from,
+                "end_date": to,
+                "use_perc": usePercDev
+            },
+            success: function(sessionsDataSet) {
+                var dataMain = _.cloneDeep(sessionsDataSet);
+                draw_graph_sessions_details("#graph_sessions_device", dataMain, true, false, usePercDev);
             },
             error: function(result) {
                 error();
             }
         });
     }
-
 })();

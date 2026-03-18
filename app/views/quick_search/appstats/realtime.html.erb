@@ -11,5 +11,11 @@
     </div>
 </div>
 
+<script>
+  window.QuickSearchConfig = {
+    realtimeUrl: '<%= QuickSearch::Engine::APP_CONFIG['realtime_url'] %>',
+    railsEnv: '<%= Rails.env %>'
+  };
+</script>
 <%= javascript_include_tag File.join(QuickSearch::Engine::APP_CONFIG['realtime_url'], '/socket.io/socket.io.js') %>
-<%= javascript_include_tag 'realtime' %>
+<script src="<%= asset_path('quick_search/realtime.js') %>"></script>

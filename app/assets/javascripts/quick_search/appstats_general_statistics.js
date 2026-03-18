@@ -1,4 +1,3 @@
-<% url_helper = QuickSearch::Engine.routes.url_helpers %>
 
 (function() {
     var Globals = {};
@@ -23,7 +22,7 @@
                 $.ajax({
                     type: "GET",
                     contentType: "application/json; charset=utf-8",
-                    url: '<%= url_helper.data_general_statistics_path %>',
+                    url: window.QuickSearchRoutes.dataGeneralStatistics,
                     dataType: "json",
                     data: {
                         "start_date": from,
@@ -47,7 +46,7 @@
                 $.ajax({
                     type: "GET",
                     contentType: "application/json; charset=utf-8",
-                    url: '<%= url_helper.data_general_table_path %>',
+                    url: window.QuickSearchRoutes.dataGeneralTable,
                     dataType: "json",
                     data: {
                         "start_date": from,
@@ -65,7 +64,7 @@
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
-                url: '<%= url_helper.data_general_statistics_path %>',
+                url: window.QuickSearchRoutes.dataGeneralStatistics,
                 dataType: "json",
                 success: function(generalStatisticsDataSet) {
                     d3.select("#graphIcon").transition().duration(250)
@@ -100,7 +99,7 @@
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
-                url: '<%= url_helper.data_general_table_path %>',
+                url: window.QuickSearchRoutes.dataGeneralTable,
                 dataType: "json",
                 success: function(tableDataSet) {
                     d3.select("#tableIcon").remove();
@@ -503,10 +502,10 @@
                 .call(zoom);
 
 
-            function brushed() {
+            function brushed(event) {
                 if (!transitioning) {
-                    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return;
-                    var s = d3.event.selection || x2.range();
+                    if (event.sourceEvent && event.sourceEvent.type === "zoom") return;
+                    var s = event.selection || x2.range();
                     x.domain(s.map(x2.invert, x2));
                     Globals.Domain = x.domain();
                     focus.select(".area").attr("d", area);
@@ -517,10 +516,10 @@
                 }
             }
 
-            function zoomed() {
+            function zoomed(event) {
                 if (!transitioning) {
-                    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return;
-                    var t = d3.event.transform;
+                    if (event.sourceEvent && event.sourceEvent.type === "brush") return;
+                    var t = event.transform;
                     x.domain(t.rescaleX(x2).domain());
                     Globals.Domain = x.domain();
                     focus.select(".area").attr("d", area);

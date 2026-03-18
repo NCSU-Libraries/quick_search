@@ -1,3 +1,18 @@
+<% content_for :head do %>
+  <script>
+    // Define routes and config before loading scripts that use them
+    window.QuickSearchRoutes = window.QuickSearchRoutes || {};
+    window.QuickSearchRoutes.logEvent = '<%= QuickSearch::Engine.routes.url_helpers.log_event_path %>';
+    window.QuickSearchRoutes.logSearch = '<%= QuickSearch::Engine.routes.url_helpers.log_search_path %>';
+    
+    window.QuickSearchConfig = window.QuickSearchConfig || {};
+    window.QuickSearchConfig.railsEnv = '<%= Rails.env %>';
+    window.QuickSearchConfig.relativeUrlRoot = '<%= ActionController::Base.relative_url_root || "" %>';
+  </script>
+  <script src="<%= asset_path('quick_search/quicksearch.js') %>" data-turbo-track="reload"></script>
+  <script src="<%= asset_path('quick_search/xhr_search.js') %>" data-turbo-track="reload"></script>
+  <script src="<%= asset_path('quick_search/event_tracking.js') %>" data-turbo-track="reload"></script>
+<% end %>
 <% title %>
 <%= render partial: 'layouts/quick_search/page_title', locals: { page_title: @page_title } %>
 <%= render partial: 'layouts/quick_search/search_form' %>

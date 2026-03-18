@@ -1,33 +1,32 @@
-<% url_helper = QuickSearch::Engine.routes.url_helpers %>
 
 (function() {
     var Globals = {};
 
     $(document).on("turbo:load", function() {
-        if ($("#graph_best_bets").length) {
-            d3.select("#bbIconContainer").append("i")
+        if ($("#graph_spelling_suggestions").length) {
+            d3.select("#spIconContainer").append("i")
                 .attr("class", "fa fa-spinner fa-spin fa-5x fa-fw big-icon")
-                .attr("id", "bbIcon");
+                .attr("id", "spIcon");
             // Redraw graph if the date range is changed
             document.getElementById("dateButton").addEventListener("click", function() { 
                 var from = $("#from").datepicker("getDate");
                 var to = new Date($("#to").datepicker("getDate").getTime() + 1000*60*60*24);
                 document.getElementById("numDays").innerHTML = "" + parseInt((to-from)/(1000*60*60*24));
-                if (document.getElementById("num").value>200) { document.getElementById("num").value = "20"; } 
+                if (document.getElementById("num").value>200) { document.getElementById("num").value = "20"; }                
                 $.ajax({
                     type: "GET",
                     contentType: "application/json; charset=utf-8",
-                    url: '<%= url_helper.data_best_bets_path %>',
+                    url: window.QuickSearchRoutes.data_spelling_suggestions,
                     dataType: "json",
                     data: {
                         "start_date": from,
                         "end_date": to,
                         "num_results": (document.getElementById("num").value>200) ? Globals.Data.length : document.getElementById("num").value
                     },
-                    success: function(bestBetDataSet) {
-                        var bestBetData = _.cloneDeep(bestBetDataSet);
-                        Globals.OriginalData = bestBetData;
-                        Globals.Data = bestBetData;
+                    success: function(suggestionDataSet) {
+                        var suggestionData = _.cloneDeep(suggestionDataSet);
+                        Globals.OriginalData = suggestionData;
+                        Globals.Data = suggestionData;
                         sort_search_data(Globals.Sort);
                     },
                     error: function(result) {
@@ -38,18 +37,18 @@
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
-                url: '<%= url_helper.data_best_bets_path %>',
+                url: window.QuickSearchRoutes.data_spelling_suggestions,
                 dataType: "json",
-                success: function(bestBetDataSet) {
-                    d3.select("#bbIcon").transition().duration(250)
+                success: function(suggestionDataSet) {
+                    d3.select("#spIcon").transition().duration(250)
                         .style("opacity", .000001)
                         .remove();
-                    var bestBetData = _.cloneDeep(bestBetDataSet);
-                    Globals.OriginalData = bestBetData;
-                    Globals.Data = bestBetData;
+                    var suggestionData = _.cloneDeep(suggestionDataSet);
+                    Globals.OriginalData = suggestionData;
+                    Globals.Data = suggestionData;
                     Globals.Sort = 0;
                     Globals.Height = 450;
-                    draw_graph_best_bets(false);
+                    draw_graph_spelling_suggestions(false);
                 },
                 error: function(result) {
                     error();
@@ -62,8 +61,8 @@
         console.log("Error retrieving data");
     }
 
-    function draw_graph_best_bets(resetExpanded) {
-        if ($("#graph_best_bets").length) {
+    function draw_graph_spelling_suggestions(resetExpanded) {
+        if ($("#graph_spelling_suggestions").length) {
             // General Variables
             var svg;            // SVG to contain graph
             var dataInt;        // Internal reference to graph dataset
@@ -114,13 +113,13 @@
             var darkBorder;     // Dark border (surrounds data elements)
 
             // Initialize General Variables ///////////////////////////////////////////////////////////
-            svg = d3.select("#graph_best_bets");
+            svg = d3.select("#graph_spelling_suggestions");
 
             dataInt = Globals.Data;
 
             sortStates = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             sortStates[Globals.Sort] = 1;
-            
+
             key = function(d) {
                 return d.key;
             };
@@ -156,7 +155,7 @@
                 return d.ratio.toString().length;
             });
             triangleSpacing = 15;
-            
+
             // Initialize Scale Variables /////////////////////////////////////////////////////////////
             serveScale = d3.scaleLinear().rangeRound([0, rankWidth + categoryWidth + serveWidth - serveBarStart - triangleSpacing]);
             serveScale.domain([0, d3.max(dataInt, function(d) {
@@ -202,7 +201,7 @@
                 .attr("class", "gAll");
 
             gAll = svg.select(".gAll")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");        
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             // Make header row ////////////////////////////////////////////////////////////////////////
             headGroupEnter = gAll.selectAll(".headRow").data([dataInt]).enter();
@@ -245,7 +244,7 @@
 
             // Make category text & sort rect
             headEnter.append("text")
-                .text("Best-Bet")
+                .text("Suggestion")
                 .attr("class", "headText")
                 .attr("transform", "translate(" + (rankWidth + textPadding) + "," + (rowHeight / 2 + textPadding) + ")");
 
@@ -363,7 +362,7 @@
                 });
 
             // Make data rows /////////////////////////////////////////////////////////////////////////
-            dataGroupEnter = gAll.selectAll(".dataRows").data([dataInt]).enter();
+            dataGroupEnter = gAll.selectAll(".dataRow").data([dataInt]).enter();
 
             dataGroupEnter.append("g")
                 .attr("class", "dataRows");
@@ -388,13 +387,7 @@
             dataRects.exit().remove();
             dataRects.enter().append("rect")
                 .style("opacity", .000001)
-                .attr("class", function(d, i) {
-                    if (d.parent) {
-                        return "lightBar";
-                    } else {
-                        return "darkBar";
-                    }
-                })
+                .attr("class", function(d, i) { return "darkBar"; })
                 .attr("x", 0)
                 .attr("y", function(d, i) {
                     return (i + 1) * rowHeight;
@@ -789,7 +782,7 @@
                 .attr("x", 0)
                 .attr("y", 0)
                 .attr("width", width)
-                .attr("height", height);
+                .attr("height", height);;
 
             darkBorder = gAll.selectAll(".darkBorder").data([dataInt]);
 
@@ -830,7 +823,7 @@
             // Resort data after delay
             setTimeout(function() {
                 Globals.Data = Globals.OriginalData.sort(function(a,b) { return determine_sort(sort, a, b) });
-                draw_graph_best_bets(true);
+                draw_graph_spelling_suggestions(true);
             }, 750);
         } else { // Otherwise, you can just resort the data
             Globals.Data = Globals.OriginalData.sort(function(a,b) { return determine_sort(sort, a, b) });
@@ -838,19 +831,23 @@
 
         // Update global sort
         Globals.Sort = sort;
-        draw_graph_best_bets(true);
+        draw_graph_spelling_suggestions(true);
     }
 
     function determine_sort(sort, a, b) {
         switch(sort) {
                 case 0: return d3.ascending(a.rank,b.rank);
                 case 1: return d3.ascending(b.rank,a.rank);
+
                 case 2: return d3.ascending(a.label,b.label);
                 case 3: return d3.ascending(b.label,a.label);
+
                 case 4: return d3.ascending(a.serves,b.serves);
                 case 5: return d3.ascending(b.serves,a.serves);
+
                 case 6: return d3.ascending(a.clicks,b.clicks);
                 case 7: return d3.ascending(b.clicks,a.clicks);
+
                 case 8: return d3.ascending(a.ratio,b.ratio);
                 case 9: return d3.ascending(b.ratio,a.ratio);
             }
@@ -863,7 +860,7 @@
         $.ajax({
             type: "GET",
             contentType: "application/json; charset=utf-8",
-            url: '<%= url_helper.data_best_bets_details_path %>',
+            url: window.QuickSearchRoutes.data_spelling_details,
             dataType: "json",
             data: {
                 "item": item,
@@ -878,7 +875,7 @@
                 updateData = _.concat(_.slice(updateData, 0, index + 1), detailData, _.slice(updateData, index + 1, updateData.length));
 
                 Globals.Data = updateData;
-                draw_graph_best_bets(false);
+                draw_graph_spelling_suggestions(false);
             },
             error: function(result) {
                 error();
@@ -892,14 +889,13 @@
             "label": item
         });
         var endIndex = startIndex + 1;
-
         while (endIndex < updateData.length && updateData[endIndex].parent) {
             endIndex++;
         }
         updateData = _.concat(_.slice(updateData, 0, startIndex + 1), _.slice(updateData, endIndex, updateData.length));
 
         Globals.Data = updateData;
-        draw_graph_best_bets(false);
+        draw_graph_spelling_suggestions(false);
     }
 
 })();

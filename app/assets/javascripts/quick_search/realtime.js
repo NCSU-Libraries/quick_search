@@ -1,7 +1,7 @@
-var realtime_host = "<%= QuickSearch::Engine::APP_CONFIG['realtime_url'] %>";
+var realtime_host = window.QuickSearchConfig.realtimeUrl;
 
 var socket = io.connect(realtime_host);
-socket.emit('subscribe', {room: 'quicksearch-<%= Rails.env %>'});
+socket.emit('subscribe', {room: 'quicksearch-' + window.QuickSearchConfig.railsEnv});
 
 socket.on('update', function(data){
   console.log(data);

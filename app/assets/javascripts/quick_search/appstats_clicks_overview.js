@@ -1,4 +1,3 @@
-<% url_helper = QuickSearch::Engine.routes.url_helpers %>
 
 (function() {
     var AppStatsGlobals = {};
@@ -21,7 +20,7 @@
                 $.ajax({
                     type: "GET",
                     contentType: "application/json; charset=utf-8",
-                    url: '<%= url_helper.data_module_clicks_path %>',
+                    url: window.QuickSearchRoutes.data_module_clicks,
                     dataType: "json",
                     data: {
                         "start_date": from,
@@ -40,7 +39,7 @@
                 $.ajax({
                     type: "GET",
                     contentType: "application/json; charset=utf-8",
-                    url: '<%= url_helper.data_result_clicks_path %>',
+                    url: window.QuickSearchRoutes.data_result_clicks,
                     dataType: "json",
                     data: {
                         "start_date": from,
@@ -60,7 +59,7 @@
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
-                url: '<%= url_helper.data_module_clicks_path %>',
+                url: window.QuickSearchRoutes.data_module_clicks,
                 dataType: "json",
                 success: function(moduleDataSet) {
                     d3.select("#moduleIcon").transition().duration(250)
@@ -80,7 +79,7 @@
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
-                url: '<%= url_helper.data_result_clicks_path %>',
+                url: window.QuickSearchRoutes.data_result_clicks,
                 dataType: "json",
                 success: function(resultDataSet) {
                     d3.select("#resultIcon").transition().duration(250)
@@ -678,7 +677,7 @@
         $.ajax({
             type: "GET",
             contentType: "application/json; charset=utf-8",
-            url: '<%= url_helper.data_module_details_path %>',
+            url: window.QuickSearchRoutes.data_module_details,
             dataType: "json",
             data: {
                 "category": category,
