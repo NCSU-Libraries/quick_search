@@ -17,6 +17,11 @@ var quickSearchEventTracking = (function () {
 
     function listenForClicks () {
         $(document).on('click', config.clickTrackingContainer + ' a', function(e) {
+            // Exclude read-more/read-less links from click tracking
+            if ($(this).hasClass('read-more') || $(this).hasClass('read-less')) {
+                return;
+            }
+
             var eventValuesDefined = eventValues($(this));
             var link = $(this)[0];
 
