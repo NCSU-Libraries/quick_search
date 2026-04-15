@@ -84,3 +84,8 @@ var xhr_searches = function(){
 $(document).ready(function() {
   xhr_searches();
 });
+
+// Also run on Turbo navigation events
+document.addEventListener('turbo:load', function() {
+  xhr_searches();
+});
