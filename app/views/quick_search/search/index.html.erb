@@ -28,12 +28,10 @@
 </div>
 <% thirdbento = all_good_bets.length > 0 ? true : false %>
 <%# FIXME: This logic could stand a second look %>
-<% unless @summon.is_a? StandardError %>
-    <% unless @best_bets.is_a? StandardError %>
-        <% if @best_bets.results.blank? %>
-            <% unless @summon.spelling_suggestion.blank? %>
-                <%= render partial: 'layouts/quick_search/spelling_suggestion', locals: { spelling_suggestion: @summon.spelling_suggestion} %>
-            <% end %>
+<% unless @best_bets.is_a? StandardError %>
+    <% if @best_bets.results.blank? %>
+        <% unless @spell_check.blank? %>
+            <%= render partial: 'layouts/quick_search/spelling_suggestion', locals: { spelling_suggestion: @spell_check.first} %>
         <% end %>
     <% end %>
 <% else %>
