@@ -1,119 +1,119 @@
 <% content_for :head do %>
-  <script>
-    // Define routes and config before loading scripts that use them
-    window.QuickSearchRoutes = window.QuickSearchRoutes || {};
-    window.QuickSearchRoutes.logEvent = '<%= QuickSearch::Engine.routes.url_helpers.log_event_path %>';
-    window.QuickSearchRoutes.logSearch = '<%= QuickSearch::Engine.routes.url_helpers.log_search_path %>';
-    
-    window.QuickSearchConfig = window.QuickSearchConfig || {};
-    window.QuickSearchConfig.railsEnv = '<%= Rails.env %>';
-    window.QuickSearchConfig.relativeUrlRoot = '<%= ActionController::Base.relative_url_root || "" %>';
-  </script>
-  <script src="<%= asset_path('quick_search/quicksearch.js') %>" data-turbo-track="reload"></script>
-  <script src="<%= asset_path('quick_search/xhr_search.js') %>" data-turbo-track="reload"></script>
-  <script src="<%= asset_path('quick_search/event_tracking.js') %>" data-turbo-track="reload"></script>
+<script>
+  // Define routes and config before loading scripts that use them
+  window.QuickSearchRoutes = window.QuickSearchRoutes || {};
+  window.QuickSearchRoutes.logEvent = '<%= QuickSearch::Engine.routes.url_helpers.log_event_path %>';
+  window.QuickSearchRoutes.logSearch = '<%= QuickSearch::Engine.routes.url_helpers.log_search_path %>';
+
+  window.QuickSearchConfig = window.QuickSearchConfig || {};
+  window.QuickSearchConfig.railsEnv = '<%= Rails.env %>';
+  window.QuickSearchConfig.relativeUrlRoot = '<%= ActionController::Base.relative_url_root || "" %>';
+</script>
+<script src="<%= asset_path('quick_search/quicksearch.js') %>" data-turbo-track="reload"></script>
+<script src="<%= asset_path('quick_search/xhr_search.js') %>" data-turbo-track="reload"></script>
+<script src="<%= asset_path('quick_search/event_tracking.js') %>" data-turbo-track="reload"></script>
 <% end %>
 <% title %>
 <%= render partial: 'layouts/quick_search/page_title', locals: { page_title: @page_title } %>
 <%= render partial: 'layouts/quick_search/search_form' %>
 <div id="quicksearch-ga-debug">
-    <ol></ol>
+  <ol></ol>
 </div>
 <div class="quicksearch-ga-click-tracking">
-    <div id="result-types" class="row">
-        <div class="small-12 columns result-types">
-            <%= render partial: 'layouts/quick_search/found_types' %>
-        </div>
+  <div id="result-types" class="row">
+    <div class="small-12 columns result-types">
+      <%= render partial: 'layouts/quick_search/found_types' %>
     </div>
+  </div>
 </div>
 <% thirdbento = all_good_bets.length > 0 ? true : false %>
 <%# FIXME: This logic could stand a second look %>
-<% unless @best_bets.is_a? StandardError %>
-    <% if @best_bets.results.blank? %>
-        <% unless @spell_check.blank? %>
-            <%= render partial: 'layouts/quick_search/spelling_suggestion', locals: { spelling_suggestion: @spell_check.first} %>
-        <% end %>
-    <% end %>
+<% unless @spell_check.blank? %>
+<%= render partial: 'layouts/quick_search/spelling_suggestion', locals: { spelling_suggestion: @spell_check.first} %>
 <% else %>
-    <div id="spelling-suggestion" class="hidden"></div>
+<div id="spelling-suggestion" class="hidden"></div>
 <% end %>
 <div class="row">
-    <div class="small-12 large-8 columns">
-        <% if @best_bets.is_a? StandardError %>
-            <div class="search-error silent-search-error" data-quicksearch-search-endpoint="best_bets"></div>
-        <% else %>
-            <% unless @best_bets.results.blank? %>
-                <%= render partial: 'layouts/quick_search/best_bets', locals: { best_bets: get_best_bets_data(@best_bets)} %>
-            <% end %>
-        <% end %>
-    </div>
+  <div class="small-12 large-8 columns">
+    <% if @best_bets.is_a? StandardError %>
+    <div class="search-error silent-search-error" data-quicksearch-search-endpoint="best_bets"></div>
+    <% else %>
+    <% unless @best_bets.results.blank? %>
+    <%= render partial: 'layouts/quick_search/best_bets', locals: { best_bets: get_best_bets_data(@best_bets)} %>
+    <% end %>
+    <% end %>
+  </div>
 </div>
 <div class="quicksearch-ga-click-tracking">
-    <div class="row articles-catalog">
-        <div class="small-12 columns summon module <%= thirdbento ? ' medium-4' : ' medium-6' %> ">
-            <%= render_module(@summon, 'summon') %>
-        </div>
-        <div class="small-12 columns catalog module <%= thirdbento ? ' medium-4' : ' medium-6' %> ">
-            <%= render_module(@catalog, 'catalog') %>
-        </div>
-        <% if thirdbento %>
-            <div class="small-12 medium-4 columns module goodbets">
-                <%= render partial: 'layouts/quick_search/good_bets', locals: { good_bets: all_good_bets[0..4] } %>
-            </div>
-        <% end %>
-        <hr>
+  <div class="row articles-catalog">
+    <div class="small-12 columns summon module <%= thirdbento ? ' medium-4' : ' medium-6' %> ">
+      <%= render_module(@summon, 'summon') %>
     </div>
-    <div class="row journals-databases">
-        <div class="small-12 columns"><h4 class='section-description'>Other Ways to Find Articles</h4></div>
-        <div class="small-12 medium-4 columns journals module">
-            <%= render_module(@ematrix_journal, 'ematrix_journal') %>
-        </div>
-        <div class="small-12 medium-4 columns databases module">
-            <%= render_module(@ematrix_database, 'ematrix_database') %>
-        </div>
-        <div class="small-12 medium-4 columns smart-subjects module">
-            <% if @smart_subjects.is_a? StandardError %>
-                <div class="search-error silent-search-error" data-quicksearch-search-endpoint="smart_subjects"></div>
-            <% else %>
-                <% unless @smart_subjects.results.blank? %>
-                    <%= render_module(@smart_subjects, 'smart_subjects') %>
-                <% end %>
-            <% end %>        
-        </div>
-        <hr>
+    <div class="small-12 columns catalog module <%= thirdbento ? ' medium-4' : ' medium-6' %> ">
+      <%= render_module(@catalog, 'catalog') %>
     </div>
-    <div class="row website-faq">
-        <div class="small-12 columns"><h4 class='section-description'>Information About the Libraries</h4></div>
-         <div class="small-12 medium-4 medium-push-8 columns faq module">
-            <% if @faq.is_a? StandardError %>
-                <div class="search-error silent-search-error" data-quicksearch-search-endpoint="faq"></div>
-            <% else %>
-                <% unless @faq.results.blank? %>
-                    <%= render_module(@faq, 'faq') %>
-                <% end %>
-            <% end %>        
-        </div>
-        <div class="small-12 medium-8 medium-pull-4 columns website module">
-            <%= render_module(@website, 'website') %>
-        </div>
+    <% if thirdbento %>
+    <div class="small-12 medium-4 columns module goodbets">
+      <%= render partial: 'layouts/quick_search/good_bets', locals: { good_bets: all_good_bets[0..4] } %>
     </div>
+    <% end %>
+    <hr>
+  </div>
+  <div class="row journals-databases">
+    <div class="small-12 columns">
+      <h4 class='section-description'>Other Ways to Find Articles</h4>
+    </div>
+    <div class="small-12 medium-4 columns journals module">
+      <%= render_module(@ematrix_journal, 'ematrix_journal') %>
+    </div>
+    <div class="small-12 medium-4 columns databases module">
+      <%= render_module(@ematrix_database, 'ematrix_database') %>
+    </div>
+    <div class="small-12 medium-4 columns smart-subjects module">
+      <% if @smart_subjects.is_a? StandardError %>
+      <div class="search-error silent-search-error" data-quicksearch-search-endpoint="smart_subjects"></div>
+      <% else %>
+      <% unless @smart_subjects.results.blank? %>
+      <%= render_module(@smart_subjects, 'smart_subjects') %>
+      <% end %>
+      <% end %>
+    </div>
+    <hr>
+  </div>
+  <div class="row website-faq">
+    <div class="small-12 columns">
+      <h4 class='section-description'>Information About the Libraries</h4>
+    </div>
+    <div class="small-12 medium-4 medium-push-8 columns faq module">
+      <% if @faq.is_a? StandardError %>
+      <div class="search-error silent-search-error" data-quicksearch-search-endpoint="faq"></div>
+      <% else %>
+      <% unless @faq.results.blank? %>
+      <%= render_module(@faq, 'faq') %>
+      <% end %>
+      <% end %>
+    </div>
+    <div class="small-12 medium-8 medium-pull-4 columns website module">
+      <%= render_module(@website, 'website') %>
+    </div>
+  </div>
 
-    <div class="row">
-        <div class="small-12 columns panel">
-            <div class="row">
-                <% unless @summon.is_a? StandardError %>
-                    <% unless @summon.related_topics.blank? %>
-                        <div id="related-topics" class="small-12 medium-7 columns module related-topics">
-                            <%= render partial: 'layouts/quick_search/related_topics', locals: {related_topics: @summon.related_topics} %>
-                        </div>
-                    <% end %>
-                <% else %>
-                        <div id="related-topics" class="hidden small-12 medium-7 columns module related-topics"></div>
-                <% end %>
-                <div id="more-options" class="small-12 medium-5 columns more-options">
-                    <%= render partial: 'layouts/quick_search/more_options' %>
-                </div>
-            </div>
+  <div class="row">
+    <div class="small-12 columns panel">
+      <div class="row">
+        <% unless @summon.is_a? StandardError %>
+        <% unless @summon.related_topics.blank? %>
+        <div id="related-topics" class="small-12 medium-7 columns module related-topics">
+          <%= render partial: 'layouts/quick_search/related_topics', locals: {related_topics: @summon.related_topics} %>
         </div>
+        <% end %>
+        <% else %>
+        <div id="related-topics" class="hidden small-12 medium-7 columns module related-topics"></div>
+        <% end %>
+        <div id="more-options" class="small-12 medium-5 columns more-options">
+          <%= render partial: 'layouts/quick_search/more_options' %>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
