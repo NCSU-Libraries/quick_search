@@ -3,30 +3,30 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 #appstats-date-filter {
-  display: none;
+	display: none;
 }
 
 // Added for appstats graph styling
 // Icon and general graph styling
 .graphGroup {
-    position: relative;
+	position: relative;
 }
 
-.graph {    
-    position: relative;
+.graph {
+	position: relative;
 }
 
 .graph_mini {
-    float: left;
+	float: left;
 }
 
 .iconContainer {
-    position: absolute;
-    z-index: 1;
+	position: absolute;
+	z-index: 1;
 }
 
 .big-icon {
-    font-size: 15em !important;
+	font-size: 15em !important;
 }
 
 .big-icon::before {
@@ -34,13 +34,13 @@
 }
 
 .clearfix {
-    clear: both;
+	clear: both;
 }
 
 .zoom {
-    cursor: move;
-    fill: none;
-    pointer-events: all;
+	cursor: move;
+	fill: none;
+	pointer-events: all;
 }
 
 // Date range styling
@@ -48,76 +48,135 @@
 	width: 100%;
 }
 
-.inputLabel, #datePickerText, #numDays {
-	width: 50%;
-	float: left;
-	color: 	#000;
-	font-size: 20px;
+.appstats-date-panel {
+	position: relative;
+}
+
+.appstats-date-panel-inner {
+	position: sticky;
+	top: 1rem;
+	padding: 0.75rem;
+	background: #f7f7f7;
+	border: 1px solid #d9d9d9;
+	border-radius: 4px;
+}
+
+.sample-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-top: 0.5rem;
+}
+
+.inputLabel,
+#datePickerText,
+#numDays {
+	width: 100%;
+	float: none;
+	color: #000;
+	font-size: 16px;
+	margin-top: 0.5rem;
 }
 
 #datePickerText {
-	width: 60%;
+	margin-top: 0;
 }
 
 #numDays {
-	width: 40%;
+	width: auto;
 	text-align: right;
+	margin-top: 0;
 }
 
-#from, #to, #num {
-	float: left;
-	width: 50%;
+#from,
+#to,
+#num {
+	float: none;
+	width: 100%;
 }
 
 // Text styling
 .chartTitle {
 	text-anchor: middle;
-	fill: 	#333333;
+	fill: #333333;
 	font-size: 30px;
 	font-family: "Lucida Console";
-    pointer-events: none;
+	pointer-events: none;
 }
 
-.headText, .totalText, .perDayText, .perClickText, .perServeText, .perSearchText, .perSessionText, .dataRank, .dataLabel, .dataClick, .dataServe, .dataRatio,
-.percentText, .dataPercent, .dataCumPercent, .legendText
- {
-    text-anchor: start;
-    fill:   #000000;
-    font-size: 13px;
-    font-family: "Lucida Console";
+.headText,
+.totalText,
+.perDayText,
+.perClickText,
+.perServeText,
+.perSearchText,
+.perSessionText,
+.dataRank,
+.dataLabel,
+.dataClick,
+.dataServe,
+.dataRatio,
+.percentText,
+.dataPercent,
+.dataCumPercent,
+.legendText {
+	text-anchor: start;
+	fill: #000000;
+	font-size: 13px;
+	font-family: "Lucida Console";
 }
 
-.headText, .percentText, .legendText {
-    font-size: 16px;
+.headText,
+.percentText,
+.legendText {
+	font-size: 16px;
 }
 
-.percentText, .dataPercent {
+.percentText,
+.dataPercent {
 	text-anchor: end;
 }
 
 // Data bars and areas
 .area {
-    fill: steelblue;
-    clip-path: url(#clip);
+	fill: steelblue;
+	clip-path: url(#clip);
 }
 
 .areaLight {
-    fill: lightsteelblue;
-    clip-path: url(#clip);
+	fill: lightsteelblue;
+	clip-path: url(#clip);
 }
 
 .areaMini {
-    fill: steelblue;
-    clip-path: url(#clipMini);
-    pointer-events: none;
+	fill: steelblue;
+	clip-path: url(#clipMini);
+	pointer-events: none;
 }
 
-.dataBar, .serveBar, .clickBar, .ratioBar, .percBar, .cumPercBar, .legendRect {
+.dataBar,
+.serveBar,
+.clickBar,
+.ratioBar,
+.percBar,
+.cumPercBar,
+.legendRect {
 	fill: steelblue;
 }
 
-.lightLegendRect, .lightDataBar, .lightServeBar, .lightClickBar, .lightRatioBar, .lightPercBar, .lightCumPercBar,
-.dataBar:hover, .serveBar:hover,  .clickBar:hover, .ratioBar:hover, .percBar:hover,  .cumPercBar:hover {
+.lightLegendRect,
+.lightDataBar,
+.lightServeBar,
+.lightClickBar,
+.lightRatioBar,
+.lightPercBar,
+.lightCumPercBar,
+.dataBar:hover,
+.serveBar:hover,
+.clickBar:hover,
+.ratioBar:hover,
+.percBar:hover,
+.cumPercBar:hover {
 	fill: lightsteelblue;
 }
 
@@ -150,6 +209,6 @@
 }
 
 .gridLine {
-    stroke: #333;
-    stroke-width: 1px;
+	stroke: #333;
+	stroke-width: 1px;
 }

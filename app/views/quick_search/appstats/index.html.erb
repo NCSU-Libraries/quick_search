@@ -1,22 +1,65 @@
 <% content_for :head do %>
-  <script>
-    // Define routes before loading scripts that use them
-    window.QuickSearchRoutes = {
-      dataGeneralStatistics: '<%= QuickSearch::Engine.routes.url_helpers.data_general_statistics_path %>',
-      dataGeneralTable: '<%= QuickSearch::Engine.routes.url_helpers.data_general_table_path %>'
-    };
-  </script>
-  <script src="<%= asset_path('quick_search/appstats.js') %>" data-turbo-track="reload"></script>
-  <script src="<%= asset_path('quick_search/appstats_general_statistics.js') %>" data-turbo-track="reload"></script>
+<script src="<%= asset_path('quick_search/appstats.js') %>" data-turbo-track="reload"></script>
 <% end %>
 <% title("#{@page_title} | ") %>
 <%= render partial: 'datatables' %>
 <div class="row">
-    <%= render partial: 'menu' %>
-    <div class="medium-8 columns">
-        <h2>General Statistics</h2>
-        <%= render partial: 'graph_general_statistics'  %>
-    </div>
-    <%= render partial: "date_range" %>
-</div>
+  <%= render partial: 'menu' %>
+  <div class="medium-8 columns">
+    <h1><%= @page_title %></h1>
+    <p>Simple overview of overall activity in the selected date range.</p>
 
+    <section class="block">
+      <h2>Totals Snapshot</h2>
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Total</th>
+            <th>Per Day</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Clicks</td>
+            <td><%= @general_totals[:clicks] %></td>
+            <td><%= @general_daily_average[:clicks] %></td>
+          </tr>
+          <tr>
+            <td>Searches</td>
+            <td><%= @general_totals[:searches] %></td>
+            <td><%= @general_daily_average[:searches] %></td>
+          </tr>
+          <tr>
+            <td>Sessions</td>
+            <td><%= @general_totals[:sessions] %></td>
+            <td><%= @general_daily_average[:sessions] %></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="block">
+      <h2>Activity Trend</h2>
+      <%= line_chart @general_trend,
+        height: '320px',
+        xtitle: 'Date',
+        ytitle: 'Count',
+        points: false,
+        colors: ['#cc0000', '#415a77', '#1b4332'],
+        empty: 'No activity found for this date range.' %>
+    </section>
+
+    <section class="block">
+      <h2>Key Ratios</h2>
+      <%= bar_chart @general_ratio,
+        height: '260px',
+        xtitle: 'Ratio',
+        ytitle: 'Metric',
+        colors: ['#6f1d1b'],
+        legend: false,
+        empty: 'No ratio data available.' %>
+    </section>
+  </div>
+  <%= render partial: "date_range" %>
+</div>

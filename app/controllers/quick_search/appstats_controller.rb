@@ -2,7 +2,8 @@ module QuickSearch
   class AppstatsController < ApplicationController
     include Auth
 
-    before_action :auth, :get_dates, :days_in_sample
+    before_action :get_dates, :days_in_sample
+    before_action :auth unless Rails.env.development?
 
     def data_general_statistics
       @result = []
@@ -275,6 +276,49 @@ module QuickSearch
 
     def index
       @page_title = 'Search Statistics'
+
+      clicks_scope = Event.where(@range).where(action: 'click')
+      searches_scope = Search.where(@range)
+      sessions_scope = Session.where(@range)
+
+      clicks_total = clicks_scope.count
+      searches_total = searches_scope.count
+      sessions_total = sessions_scope.count
+
+      sample_days = [@days_in_sample, 1].max.to_f
+
+      @general_totals = {
+        clicks: clicks_total,
+        searches: searches_total,
+        sessions: sessions_total
+      }
+
+      @general_daily_average = {
+        clicks: (clicks_total / sample_days).round(2),
+        searches: (searches_total / sample_days).round(2),
+        sessions: (sessions_total / sample_days).round(2)
+      }
+
+      @general_trend = [
+        {
+          name: 'Clicks',
+          data: clicks_scope.group(:created_at_string).order('created_at_string ASC').count(:created_at_string)
+        },
+        {
+          name: 'Searches',
+          data: searches_scope.group(:created_at_string).order('created_at_string ASC').count(:created_at_string)
+        },
+        {
+          name: 'Sessions',
+          data: sessions_scope.group(:created_at_string).order('created_at_string ASC').count(:created_at_string)
+        }
+      ]
+
+      @general_ratio = [
+        ['Clicks / Search', searches_total.positive? ? (clicks_total.to_f / searches_total).round(2) : 0.0],
+        ['Searches / Session', sessions_total.positive? ? (searches_total.to_f / sessions_total).round(2) : 0.0],
+        ['Clicks / Session', sessions_total.positive? ? (clicks_total.to_f / sessions_total).round(2) : 0.0]
+      ]
     end
 
     def clicks_overview
@@ -283,10 +327,31 @@ module QuickSearch
 
     def top_searches
       @page_title = 'Top Searches'
+
+      report = QuickSearch::TopicSearchReport.new(
+        relation: Search.where(page: '/').where(@range),
+        limit: top_search_report_limit
+      )
+
+      @top_search_terms = report.top_terms_chart_data
+      @topic_buckets = report.topic_bucket_chart_data
+      @search_volume = report.search_volume_chart_data
+      @topic_examples = report.topic_examples
     end
 
     def top_spot
       @page_title = params[:ga_top_spot_module]
+
+      report = QuickSearch::SpotPerformanceReport.new(
+        category: @page_title,
+        range: @range,
+        limit: top_search_report_limit
+      )
+
+      @spot_top_served = report.top_served_chart_data
+      @spot_ctr = report.click_through_rate_chart_data
+      @spot_volume = report.volume_series_chart_data
+      @spot_items = report.item_examples
     end
 
     def sessions_overview
@@ -327,6 +392,13 @@ module QuickSearch
 
     def excluded_categories
       "category <> \"common-searches\" AND category <> \"result-types\"AND category <> \"typeahead\""
+    end
+
+    def top_search_report_limit
+      requested_limit = params[:num_results].to_i
+      return 20 unless requested_limit.positive?
+
+      [requested_limit, 50].min
     end
 
   end

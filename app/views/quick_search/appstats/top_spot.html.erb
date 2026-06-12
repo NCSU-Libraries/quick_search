@@ -1,30 +1,80 @@
 <% content_for :head do %>
-  <script>
-    window.QuickSearchRoutes = {
-      data_best_bets: '<%= QuickSearch::Engine.routes.url_helpers.data_best_bets_path %>',
-      data_best_bets_details: '<%= QuickSearch::Engine.routes.url_helpers.data_best_bets_details_path %>',
-      data_spelling_suggestions: '<%= QuickSearch::Engine.routes.url_helpers.data_spelling_suggestions_path %>',
-      data_spelling_details: '<%= QuickSearch::Engine.routes.url_helpers.data_spelling_details_path %>'
-    };
-  </script>
-  <script src="<%= asset_path('quick_search/appstats.js') %>" data-turbo-track="reload"></script>
-  <% if @page_title=='best-bets-regular' %>
-    <script src="<%= asset_path('quick_search/appstats_best_bets.js') %>" data-turbo-track="reload"></script>
-  <% elsif @page_title=='spelling-suggestion' %>
-    <script src="<%= asset_path('quick_search/appstats_spelling_suggestions.js') %>" data-turbo-track="reload"></script>
-  <% end %>
+<script src="<%= asset_path('quick_search/appstats.js') %>" data-turbo-track="reload"></script>
 <% end %>
 <% title("#{@page_title} | ") %>
 <%= render partial: 'datatables' %>
+<%
+  total_serves = @spot_items.sum { |item| item[:serves] }
+  total_clicks = @spot_items.sum { |item| item[:clicks] }
+  overall_ctr = total_serves.positive? ? ((100.0 * total_clicks) / total_serves).round(2) : 0.0
+  top_item = @spot_items.first
+%>
 <div class="row">
-    <%= render partial: "menu" %>
-    <div class="medium-8 columns">
-        <% if @page_title=='spelling-suggestion' %> 
-            <%= render partial: 'graph_spelling_suggestions' %>
-        <% end %>
-        <% if @page_title=='best-bets-regular' %> 
-            <%= render partial: 'graph_best_bets' %>
-        <% end %>
-    </div>
-    <%= render partial: "date_range" %>
+  <%= render partial: "menu" %>
+  <div class="medium-8 columns">
+    <h1><%= @page_title %></h1>
+    <p>Clear snapshot of suggestion performance for this module.</p>
+
+    <section class="block">
+      <h2>Performance Summary</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th style="text-align:left; width: 220px;">Total Serves</th>
+            <td><%= total_serves %></td>
+          </tr>
+          <tr>
+            <th style="text-align:left;">Total Clicks</th>
+            <td><%= total_clicks %></td>
+          </tr>
+          <tr>
+            <th style="text-align:left;">Overall CTR</th>
+            <td><%= overall_ctr %>%</td>
+          </tr>
+          <tr>
+            <th style="text-align:left;">Top Item</th>
+            <td><%= top_item ? top_item[:item] : 'No data' %></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="block">
+      <h2>Top Served Items</h2>
+      <%= bar_chart @spot_top_served,
+        height: '360px',
+        xtitle: 'Serves',
+        ytitle: 'Item',
+        colors: ['#cc0000'],
+        legend: false,
+        empty: 'No serve events found for this date range.' %>
+    </section>
+
+    <section class="block">
+      <h2>Ranked Item Detail</h2>
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Item</th>
+            <th>Serves</th>
+            <th>Clicks</th>
+            <th>CTR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @spot_items.each_with_index do |item, index| %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><%= item[:item] %></td>
+            <td><%= item[:serves] %></td>
+            <td><%= item[:clicks] %></td>
+            <td><%= item[:ctr] %>%</td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <%= render partial: "date_range" %>
 </div>
