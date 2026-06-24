@@ -10,7 +10,7 @@ function add_found_item_types(endpoint, result_count) {
   }
   var dasherized_endpoint = endpoint.replace("_", "-")
   $('.result-types li.' + dasherized_endpoint + " .no-results-label")
-    .replaceWith('<a href="#' + dasherized_endpoint + '" data-quicksearch-ga-action="' + 
+    .replaceWith('<a href="#' + dasherized_endpoint + '" data-quicksearch-ga-action="' +
       dasherized_endpoint + '">' + I18n["en"][endpoint + "_search"]["display_name"] + result_count_display);
 }
 
@@ -30,14 +30,14 @@ var xhr_searches = function(){
         var parent_id = parent[0].id;
       }
       var pathname = window.location.pathname;
-      
+
       var url = pathname;
 
       if (url.substr(-1) != '/'){
         url += '/';
       }
       url += 'xhr_search.html?q=' + encodeURIComponent(params_q) + '&endpoint=' + endpoint + '&page=' + params_page + '&template=' + params_template;
-      
+
       if (!that.hasClass('silent-search-error')) {
         parent.append('<div class="trying_again"><i class="fa fa-refresh fa-spin"></i> Just a few more seconds </div>');
       }
@@ -81,11 +81,6 @@ var xhr_searches = function(){
     );
 }
 
-$(document).ready(function() {
-  xhr_searches();
-});
-
-// Also run on Turbo navigation events
-document.addEventListener('turbo:load', function() {
+$(document).on('turbo:load', function() {
   xhr_searches();
 });
