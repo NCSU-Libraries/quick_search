@@ -168,12 +168,25 @@ module QuickSearch
         @query = params_q_scrubbed
         @search_in_params = true
         search_all_in_threads(endpoint)
+        if @spell_check.blank?
+          @spell_check = spell_check_from_searchers(@query, searchers_for_spell_check(endpoint))
+        end
         #log_search(@query, page_to_render)
         render page_to_render
       else
         @search_in_params = false
         render '/quick_search/pages/home'
       end
+    end
+
+    def searchers_for_spell_check(endpoint)
+      searcher_names = if endpoint == 'defaults'
+                         QuickSearch::Engine::APP_CONFIG['searchers']
+                       else
+                         [endpoint]
+                       end
+
+      searcher_names.filter_map { |searcher_name| instance_variable_get("@#{searcher_name}") }
     end
 
     def page
